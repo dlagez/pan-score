@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pan Score | Home</title>
+    <style>
+      :root {
+        --bg-1: #0a1013;
+        --bg-2: #112028;
+        --accent: #f6c453;
+        --accent-2: #5eead4;
+        --ink: #e8f1f3;
+        --muted: #a3b4bb;
+        --card: rgba(16, 24, 28, 0.82);
+        --stroke: rgba(255, 255, 255, 0.08);
+        --shadow: rgba(4, 8, 10, 0.45);
+        --danger: #ff6b6b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Space Grotesk", "IBM Plex Sans", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(900px 520px at 5% 10%, #1a3a41 0%, transparent 60%),
+          radial-gradient(700px 520px at 92% -10%, #1b2b35 0%, transparent 55%),
+          linear-gradient(150deg, var(--bg-1), var(--bg-2));
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 12% 6% auto auto;
+        width: 260px;
+        height: 260px;
+        border-radius: 45% 55% 55% 45%;
+        background: radial-gradient(circle, rgba(246, 196, 83, 0.2), transparent 65%);
+        filter: blur(10px);
+        pointer-events: none;
+      }
+
+      .page {
+        width: min(1080px, 100%);
+        display: grid;
+        gap: 24px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: conic-gradient(from 120deg, var(--accent), #3a5f67, var(--accent-2));
+        box-shadow: 0 10px 30px var(--shadow);
+        position: relative;
+      }
+
+      .logo::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border-radius: 11px;
+        background: #0c1417;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      nav a,
+      nav button {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(12, 18, 21, 0.6);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      nav button {
+        font-family: inherit;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, rgba(246, 196, 83, 0.14), rgba(94, 234, 212, 0.12));
+        border: 1px solid var(--stroke);
+        border-radius: 26px;
+        padding: 28px;
+        box-shadow: 0 20px 60px var(--shadow);
+        display: grid;
+        gap: 14px;
+        animation: rise 0.6s ease both;
+        animation-delay: 0.05s;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(94, 234, 212, 0.1);
+        color: var(--accent-2);
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        width: fit-content;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2rem, 3.8vw, 2.9rem);
+        line-height: 1.05;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 560px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        border: 0;
+        border-radius: 16px;
+        padding: 12px 18px;
+        background: linear-gradient(120deg, var(--accent), #f3a93b);
+        color: #151208;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+
+      .ghost {
+        border-radius: 16px;
+        padding: 12px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: var(--ink);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        animation: rise 0.6s ease both;
+        animation-delay: 0.12s;
+      }
+
+      .tile {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 18px 50px var(--shadow);
+        display: grid;
+        gap: 8px;
+      }
+
+      .tile span {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 24px;
+        padding: 20px;
+        display: grid;
+        gap: 14px;
+        animation: rise 0.6s ease both;
+        animation-delay: 0.2s;
+      }
+
+      .panel h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 0.95rem;
+        min-height: 1.2em;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .token {
+        background: rgba(7, 12, 14, 0.8);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 0.9rem;
+        color: var(--accent-2);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 720px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>Pan Score</div>
+        </div>
+        <nav>
+          <a href="/login">Switch Account</a>
+          <button type="button" id="logout-btn">Sign Out</button>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <span class="badge">Dashboard</span>
+        <h1>Welcome home.</h1>
+        <p id="user-line">Checking your session...</p>
+        <div class="hero-actions">
+          <button class="button" id="copy-btn" type="button">Copy Token</button>
+          <a class="ghost" href="/login">Manage Access</a>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="tile">
+          <span>API Status</span>
+          <strong>Ready for requests</strong>
+          <div class="status" id="api-status">Checking...</div>
+        </div>
+        <div class="tile">
+          <span>Session</span>
+          <strong>JWT Active</strong>
+          <div class="status" id="session-status">Pending...</div>
+        </div>
+        <div class="tile">
+          <span>Next Step</span>
+          <strong>Build your dashboard</strong>
+          <div class="status">Add protected views here.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Token Preview</h2>
+        <div class="token" id="token-preview">No token loaded.</div>
+        <div class="status" id="token-status"></div>
+      </section>
+    </main>
+
+    <script>
+      const userLine = document.getElementById("user-line");
+      const tokenPreview = document.getElementById("token-preview");
+      const tokenStatus = document.getElementById("token-status");
+      const apiStatus = document.getElementById("api-status");
+      const sessionStatus = document.getElementById("session-status");
+      const copyBtn = document.getElementById("copy-btn");
+      const logoutBtn = document.getElementById("logout-btn");
+
+      const token = localStorage.getItem("access_token");
+
+      const maskToken = (value) => {
+        if (!value) {
+          return "No token loaded.";
+        }
+        return `${value.slice(0, 18)}...${value.slice(-10)}`;
+      };
+
+      const redirectToLogin = () => {
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1000);
+      };
+
+      const initSession = async () => {
+        if (!token) {
+          userLine.textContent = "No active session. Redirecting to login...";
+          tokenPreview.textContent = "Missing access token.";
+          tokenStatus.className = "status error";
+          tokenStatus.textContent = "Please sign in to continue.";
+          sessionStatus.textContent = "Not signed in.";
+          redirectToLogin();
+          return;
+        }
+
+        tokenPreview.textContent = maskToken(token);
+        sessionStatus.textContent = "Token present.";
+
+        try {
+          const response = await fetch("/api/v1/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) {
+            throw new Error("Session expired");
+          }
+          const data = await response.json();
+          userLine.textContent = `Signed in as ${data.email}`;
+          tokenStatus.className = "status";
+          tokenStatus.textContent = "Session verified.";
+        } catch (error) {
+          userLine.textContent = "Session check failed. Redirecting...";
+          tokenStatus.className = "status error";
+          tokenStatus.textContent = "Token invalid or expired.";
+          localStorage.removeItem("access_token");
+          redirectToLogin();
+        }
+      };
+
+      const checkApi = async () => {
+        try {
+          const response = await fetch("/health");
+          if (!response.ok) {
+            throw new Error("API unhealthy");
+          }
+          apiStatus.textContent = "Health check ok.";
+        } catch (error) {
+          apiStatus.textContent = "Health check failed.";
+          apiStatus.className = "status error";
+        }
+      };
+
+      copyBtn.addEventListener("click", async () => {
+        if (!token) {
+          tokenStatus.className = "status error";
+          tokenStatus.textContent = "No token to copy.";
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(token);
+          tokenStatus.className = "status";
+          tokenStatus.textContent = "Token copied to clipboard.";
+        } catch (error) {
+          tokenStatus.className = "status error";
+          tokenStatus.textContent = "Clipboard access denied.";
+        }
+      });
+
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+      });
+
+      initSession();
+      checkApi();
+    </script>
+  </body>
+</html>
