@@ -28,6 +28,15 @@ def create_app():
     def home_page():
         return send_from_directory("static", "home.html")
 
+    @app.get("/search")
+    def search_page():
+        return send_from_directory("static", "search.html")
+
+    @app.get("/series")
+    @app.get("/series/<int:series_id>")
+    def series_page(series_id: int | None = None):
+        return send_from_directory("static", "series.html")
+
     @app.get("/login")
     def login_page():
         return send_from_directory("static", "login.html")

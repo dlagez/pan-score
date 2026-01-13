@@ -1,0 +1,698 @@
+﻿<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pan Score | 搜索</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Sans+SC:wght@400;500;600&display=swap");
+
+      :root {
+        --bg-1: #07121b;
+        --bg-2: #0a1d2b;
+        --panel: rgba(11, 25, 36, 0.92);
+        --panel-2: rgba(14, 33, 48, 0.96);
+        --stroke: rgba(255, 255, 255, 0.08);
+        --ink: #ecf2f6;
+        --muted: #9fb2c1;
+        --accent: #11b5a4;
+        --accent-2: #37c5f0;
+        --accent-3: #f39b5a;
+        --shadow: rgba(3, 8, 12, 0.55);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "DM Sans", "IBM Plex Sans SC", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(900px 420px at 85% 15%, rgba(55, 197, 240, 0.16), transparent 60%),
+          radial-gradient(700px 520px at 12% 20%, rgba(17, 181, 164, 0.14), transparent 55%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+        padding: 24px 18px 48px;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 3px 3px;
+        opacity: 0.3;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        gap: 24px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--ink);
+      }
+
+      .logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: conic-gradient(from 120deg, var(--accent), var(--accent-2), var(--accent-3));
+        box-shadow: 0 12px 26px var(--shadow);
+        position: relative;
+      }
+
+      .logo::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border-radius: 10px;
+        background: #0b1822;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .brand-title {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+      }
+
+      .brand-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .nav {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+      }
+
+      .nav a:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+
+      .account {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .pill {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.86rem;
+      }
+
+      .ghost-btn {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+
+      .search-hero {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 24px;
+        padding: 20px;
+        display: grid;
+        gap: 10px;
+        box-shadow: 0 20px 50px var(--shadow);
+      }
+
+      .search-hero h1 {
+        margin: 0;
+        font-size: 1.6rem;
+      }
+
+      .search-hero p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .search-bar {
+        display: flex;
+        gap: 10px;
+        background: rgba(5, 12, 18, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        padding: 6px 8px 6px 16px;
+        max-width: 640px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font-size: 0.95rem;
+        outline: none;
+      }
+
+      .search-bar button {
+        border: 0;
+        border-radius: 999px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .search-layout {
+        display: grid;
+        grid-template-columns: minmax(200px, 0.28fr) minmax(320px, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .filter-panel {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        padding: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .filter-title {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .filter-btn {
+        border: 1px solid transparent;
+        border-radius: 14px;
+        padding: 10px 12px;
+        background: rgba(6, 13, 19, 0.6);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        font-size: 0.92rem;
+      }
+
+      .filter-btn.active {
+        border-color: rgba(17, 181, 164, 0.7);
+        background: rgba(17, 181, 164, 0.12);
+      }
+
+      .filter-count {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .results {
+        display: grid;
+        gap: 12px;
+      }
+
+      .row-status {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .row-status.error {
+        color: #f47174;
+      }
+
+      .result-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .result-card {
+        background: var(--panel-2);
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 16px;
+        align-items: start;
+        box-shadow: 0 18px 40px var(--shadow);
+        animation: rise 0.4s ease both;
+        animation-delay: calc(var(--index) * 0.03s);
+      }
+
+      .poster {
+        width: 110px;
+        height: 160px;
+        border-radius: 14px;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(8, 16, 24, 0.8);
+      }
+
+      .result-meta {
+        display: grid;
+        gap: 8px;
+      }
+
+      .result-title {
+        margin: 0;
+        font-size: 1.1rem;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .result-link {
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .result-link:hover {
+        text-decoration: underline;
+      }
+
+      .type-badge {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(17, 181, 164, 0.2);
+        color: var(--accent-2);
+      }
+
+      .result-sub {
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .result-overview {
+        color: var(--muted);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .result-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .action-pill {
+        border-radius: 999px;
+        padding: 6px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .search-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        header {
+          justify-content: center;
+        }
+
+        .nav {
+          justify-content: center;
+        }
+
+        .account {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .search-bar {
+          flex-direction: column;
+          border-radius: 20px;
+          align-items: stretch;
+          padding: 12px;
+        }
+
+        .result-card {
+          grid-template-columns: 1fr;
+        }
+
+        .poster {
+          width: 100%;
+          height: 240px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <a class="brand" href="/home" aria-label="返回首页">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">Pan Score</div>
+            <div class="brand-sub">网盘链接评分与推荐</div>
+          </div>
+        </a>
+        <nav class="nav">
+          <a href="/home">首页</a>
+          <a href="#">电影</a>
+          <a href="#">剧集</a>
+          <a href="#">链接库</a>
+        </nav>
+        <div class="account">
+          <div class="pill" id="user-pill">访客</div>
+          <button class="ghost-btn" id="logout-btn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="search-hero">
+        <h1>搜索结果</h1>
+        <p>探索电影、剧集与人物条目，找到最值得评分的分享链接。</p>
+        <form class="search-bar" id="search-form" action="/search" method="get">
+          <input id="search-input" name="q" type="search" placeholder="输入关键词，例如 primate" />
+          <button type="submit">搜索</button>
+        </form>
+      </section>
+
+      <section class="search-layout">
+        <aside class="filter-panel">
+          <div class="filter-title">分类</div>
+          <button class="filter-btn active" data-type="all" type="button">
+            全部
+            <span class="filter-count" id="count-all">0</span>
+          </button>
+          <button class="filter-btn" data-type="movie" type="button">
+            电影
+            <span class="filter-count" id="count-movie">0</span>
+          </button>
+          <button class="filter-btn" data-type="tv" type="button">
+            剧集
+            <span class="filter-count" id="count-tv">0</span>
+          </button>
+          <button class="filter-btn" data-type="person" type="button">
+            人物
+            <span class="filter-count" id="count-person">0</span>
+          </button>
+        </aside>
+
+        <div class="results">
+          <div class="row-status" id="search-status">请输入关键词开始搜索。</div>
+          <div class="result-list" id="result-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const userPill = document.getElementById("user-pill");
+      const logoutBtn = document.getElementById("logout-btn");
+      const searchForm = document.getElementById("search-form");
+      const searchInput = document.getElementById("search-input");
+      const searchStatus = document.getElementById("search-status");
+      const resultList = document.getElementById("result-list");
+      const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
+
+      const countAll = document.getElementById("count-all");
+      const countMovie = document.getElementById("count-movie");
+      const countTv = document.getElementById("count-tv");
+      const countPerson = document.getElementById("count-person");
+
+      const token = localStorage.getItem("access_token");
+      const tmdbImageBase = "https://image.tmdb.org/t/p/";
+
+      let cachedResults = [];
+      let currentFilter = "all";
+
+      const buildImage = (path, size) => {
+        if (!path) {
+          return "linear-gradient(135deg, rgba(17, 181, 164, 0.3), rgba(55, 197, 240, 0.2))";
+        }
+        return `url(${tmdbImageBase}${size}${path})`;
+      };
+
+      const typeLabel = (type) => {
+        if (type === "movie") return "电影";
+        if (type === "tv") return "剧集";
+        if (type === "person") return "人物";
+        return "其他";
+      };
+
+      const formatDate = (value) => {
+        return value || "日期未知";
+      };
+
+      const buildKnownFor = (item) => {
+        if (!item.known_for || item.known_for.length === 0) {
+          return "暂无代表作";
+        }
+        return item.known_for
+          .map((entry) => entry.title || entry.name)
+          .filter(Boolean)
+          .slice(0, 3)
+          .join("、");
+      };
+
+      const setStatus = (message, isError = false) => {
+        searchStatus.textContent = message;
+        searchStatus.classList.toggle("error", isError);
+      };
+
+      const clearResults = () => {
+        resultList.innerHTML = "";
+      };
+
+      const createResultCard = (item, index) => {
+        const card = document.createElement("article");
+        card.className = "result-card";
+        card.style.setProperty("--index", index);
+
+        const poster = document.createElement("div");
+        poster.className = "poster";
+        const posterPath = item.media_type === "person" ? item.profile_path : item.poster_path;
+        poster.style.backgroundImage = buildImage(posterPath, "w185");
+
+        const meta = document.createElement("div");
+        meta.className = "result-meta";
+
+        const title = document.createElement("h3");
+        title.className = "result-title";
+        const titleText = item.title || item.name || "未命名";
+        if (item.media_type === "tv") {
+          const link = document.createElement("a");
+          link.className = "result-link";
+          link.href = `/series/${item.id}`;
+          link.textContent = titleText;
+          title.appendChild(link);
+        } else {
+          title.textContent = titleText;
+        }
+
+        const badge = document.createElement("span");
+        badge.className = "type-badge";
+        badge.textContent = typeLabel(item.media_type);
+        title.appendChild(badge);
+
+        const sub = document.createElement("div");
+        sub.className = "result-sub";
+        if (item.media_type === "person") {
+          sub.textContent = `代表作：${buildKnownFor(item)}`;
+        } else {
+          const date = formatDate(item.release_date || item.first_air_date);
+          sub.textContent = `${date} · 评分 ${Math.round((item.vote_average || 0) * 10)}`;
+        }
+
+        const overview = document.createElement("div");
+        overview.className = "result-overview";
+        if (item.media_type === "person") {
+          overview.textContent = item.known_for_department
+            ? `领域：${item.known_for_department}`
+            : "暂无简介";
+        } else {
+          overview.textContent = item.overview || "暂无简介";
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "result-actions";
+        const pill1 = document.createElement("span");
+        pill1.className = "action-pill";
+        pill1.textContent = item.media_type === "person" ? "人物条目" : "查看条目";
+        const pill2 = document.createElement("span");
+        pill2.className = "action-pill";
+        pill2.textContent = item.media_type === "person" ? "可评分链接" : "评分链接";
+        actions.appendChild(pill1);
+        actions.appendChild(pill2);
+
+        meta.appendChild(title);
+        meta.appendChild(sub);
+        meta.appendChild(overview);
+        meta.appendChild(actions);
+
+        card.appendChild(poster);
+        card.appendChild(meta);
+        return card;
+      };
+
+      const updateCounts = (results) => {
+        const movies = results.filter((item) => item.media_type === "movie");
+        const tvs = results.filter((item) => item.media_type === "tv");
+        const people = results.filter((item) => item.media_type === "person");
+
+        countAll.textContent = results.length;
+        countMovie.textContent = movies.length;
+        countTv.textContent = tvs.length;
+        countPerson.textContent = people.length;
+      };
+
+      const renderResults = () => {
+        clearResults();
+        const filtered = currentFilter === "all"
+          ? cachedResults
+          : cachedResults.filter((item) => item.media_type === currentFilter);
+
+        if (filtered.length === 0) {
+          setStatus("暂无结果，请尝试其他关键词。", false);
+          return;
+        }
+
+        setStatus(`共 ${filtered.length} 条结果 · 当前分类：${typeLabel(currentFilter)}`);
+        filtered.forEach((item, index) => {
+          resultList.appendChild(createResultCard(item, index));
+        });
+      };
+
+      const loadSearch = async (query) => {
+        setStatus("搜索中...");
+        try {
+          const response = await fetch(`/api/v1/tmdb/search?media_type=multi&query=${encodeURIComponent(query)}`);
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "搜索失败");
+          }
+          cachedResults = (data.results || []).filter((item) => item.media_type);
+          updateCounts(cachedResults);
+          renderResults();
+        } catch (error) {
+          cachedResults = [];
+          updateCounts(cachedResults);
+          clearResults();
+          setStatus(`搜索失败：${error.message}`, true);
+        }
+      };
+
+      const initSession = async () => {
+        if (!token) {
+          userPill.textContent = "未登录";
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/v1/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Session invalid");
+          }
+
+          const data = await response.json();
+          userPill.textContent = data.email;
+        } catch (error) {
+          userPill.textContent = "会话过期";
+          localStorage.removeItem("access_token");
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
+        }
+      };
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.type;
+          filterButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+          renderResults();
+        });
+      });
+
+      searchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) {
+          setStatus("请输入关键词。");
+          return;
+        }
+        currentFilter = "all";
+        filterButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.type === "all"));
+        const url = new URL(window.location.href);
+        url.searchParams.set("q", query);
+        window.history.replaceState({}, "", url);
+        loadSearch(query);
+      });
+
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+      });
+
+      const initialQuery = new URLSearchParams(window.location.search).get("q") || "";
+      if (initialQuery) {
+        searchInput.value = initialQuery;
+        loadSearch(initialQuery);
+      }
+
+      initSession();
+    </script>
+  </body>
+</html>

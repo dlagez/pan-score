@@ -5,3 +5,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret")
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///dev.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+    TMDB_ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN")
+    TMDB_LANGUAGE = os.getenv("TMDB_LANGUAGE", "en-US")
+    TMDB_BASE_URL = os.getenv("TMDB_BASE_URL", "https://api.themoviedb.org/3")

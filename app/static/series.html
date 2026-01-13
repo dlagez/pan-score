@@ -1,0 +1,740 @@
+﻿<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pan Score | 剧集详情</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Sans+SC:wght@400;500;600&display=swap");
+
+      :root {
+        --bg-1: #07121b;
+        --bg-2: #0a1d2b;
+        --panel: rgba(11, 25, 36, 0.92);
+        --panel-2: rgba(14, 33, 48, 0.96);
+        --stroke: rgba(255, 255, 255, 0.08);
+        --ink: #ecf2f6;
+        --muted: #9fb2c1;
+        --accent: #11b5a4;
+        --accent-2: #37c5f0;
+        --accent-3: #f39b5a;
+        --shadow: rgba(3, 8, 12, 0.55);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "DM Sans", "IBM Plex Sans SC", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(900px 420px at 85% 15%, rgba(55, 197, 240, 0.16), transparent 60%),
+          radial-gradient(700px 520px at 12% 20%, rgba(17, 181, 164, 0.14), transparent 55%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+        padding: 24px 18px 48px;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 3px 3px;
+        opacity: 0.3;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        gap: 24px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--ink);
+      }
+
+      .logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: conic-gradient(from 120deg, var(--accent), var(--accent-2), var(--accent-3));
+        box-shadow: 0 12px 26px var(--shadow);
+        position: relative;
+      }
+
+      .logo::after {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border-radius: 10px;
+        background: #0b1822;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .brand-title {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+      }
+
+      .brand-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .account {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .pill {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.86rem;
+      }
+
+      .ghost-btn {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+
+      .hero {
+        position: relative;
+        border-radius: 28px;
+        overflow: hidden;
+        background: #0a1a27;
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      .hero-backdrop {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        filter: saturate(1.05);
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(7, 18, 27, 0.94), rgba(7, 18, 27, 0.4));
+        z-index: 1;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: minmax(220px, 0.32fr) minmax(320px, 1fr);
+        gap: 24px;
+        padding: 28px;
+      }
+
+      .poster-card {
+        background: rgba(7, 14, 20, 0.9);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        min-height: 360px;
+      }
+
+      .poster {
+        background-size: cover;
+        background-position: center;
+        min-height: 320px;
+      }
+
+      .poster-actions {
+        padding: 12px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .poster-actions button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(17, 181, 164, 0.18);
+        color: var(--ink);
+        cursor: pointer;
+      }
+
+      .hero-info {
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.75rem;
+        color: var(--accent-2);
+      }
+
+      .hero-title {
+        margin: 0;
+        font-size: clamp(2rem, 3.6vw, 3rem);
+        line-height: 1.1;
+      }
+
+      .hero-title span {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 0.8em;
+      }
+
+      .meta-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .meta-line span {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(8, 16, 24, 0.5);
+      }
+
+      .score-line {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .score-ring {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent) calc(var(--score) * 1%), rgba(255, 255, 255, 0.2) 0);
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+
+      .score-ring::after {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border-radius: 50%;
+        background: #0c1824;
+      }
+
+      .score-ring span {
+        position: relative;
+        font-weight: 600;
+      }
+
+      .score-label {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .score-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .score-actions button {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 8px 14px;
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        cursor: pointer;
+      }
+
+      .score-actions button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        border-color: transparent;
+      }
+
+      .tagline {
+        font-style: italic;
+        color: var(--muted);
+      }
+
+      .overview h2 {
+        margin: 0 0 6px;
+        font-size: 1.1rem;
+      }
+
+      .overview p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .creator {
+        display: grid;
+        gap: 4px;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .creator strong {
+        color: var(--ink);
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 1fr) minmax(240px, 0.32fr);
+        gap: 20px;
+      }
+
+      .cast-block {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 22px;
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .cast-row {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(130px, 1fr);
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+
+      .cast-card {
+        background: rgba(7, 14, 20, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 150px auto;
+      }
+
+      .cast-photo {
+        background-size: cover;
+        background-position: center;
+      }
+
+      .cast-meta {
+        padding: 10px 12px 12px;
+        display: grid;
+        gap: 4px;
+      }
+
+      .cast-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .cast-role {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      .facts {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 22px;
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+        align-content: start;
+      }
+
+      .facts-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .fact {
+        display: grid;
+        gap: 4px;
+        font-size: 0.9rem;
+      }
+
+      .fact span {
+        color: var(--muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .status-line {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .status-line.error {
+        color: #f47174;
+      }
+
+      @media (max-width: 980px) {
+        .hero-content {
+          grid-template-columns: 1fr;
+        }
+
+        .details-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        header {
+          justify-content: center;
+        }
+
+        .account {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <a class="brand" href="/home" aria-label="返回首页">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">Pan Score</div>
+            <div class="brand-sub">网盘链接评分与推荐</div>
+          </div>
+        </a>
+        <div class="account">
+          <div class="pill" id="user-pill">访客</div>
+          <button class="ghost-btn" id="logout-btn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-backdrop" id="hero-backdrop"></div>
+        <div class="hero-content">
+          <div class="poster-card">
+            <div class="poster" id="poster"></div>
+            <div class="poster-actions">
+              <button type="button" id="link-btn">查看分享链接</button>
+              <button type="button" id="trailer-btn">播放预告</button>
+            </div>
+          </div>
+          <div class="hero-info">
+            <div class="kicker">剧集详情</div>
+            <h1 class="hero-title" id="hero-title">加载中...</h1>
+            <div class="meta-line" id="meta-line"></div>
+            <div class="score-line">
+              <div class="score-ring" id="score-ring"><span id="score-text">--</span></div>
+              <div class="score-label">综合评分</div>
+              <div class="score-actions">
+                <button class="primary" type="button" id="rate-btn">评分链接</button>
+                <button type="button">收藏</button>
+              </div>
+            </div>
+            <div class="tagline" id="tagline"></div>
+            <div class="overview">
+              <h2>剧情简介</h2>
+              <p id="overview">正在获取内容...</p>
+            </div>
+            <div class="creator" id="creator"></div>
+            <div class="status-line" id="status-line"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="details-grid">
+        <div class="details-main">
+          <div class="cast-block">
+            <div class="section-title">主要演员</div>
+            <div class="cast-row" id="cast-row"></div>
+          </div>
+        </div>
+        <aside class="facts">
+          <div class="section-title">剧集信息</div>
+          <div class="facts-list">
+            <div class="fact"><span>状态</span><strong id="fact-status">--</strong></div>
+            <div class="fact"><span>季数</span><strong id="fact-seasons">--</strong></div>
+            <div class="fact"><span>集数</span><strong id="fact-episodes">--</strong></div>
+            <div class="fact"><span>单集时长</span><strong id="fact-runtime">--</strong></div>
+            <div class="fact"><span>首播日期</span><strong id="fact-first">--</strong></div>
+            <div class="fact"><span>语言</span><strong id="fact-language">--</strong></div>
+            <div class="fact"><span>播出平台</span><strong id="fact-networks">--</strong></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const heroBackdrop = document.getElementById("hero-backdrop");
+      const heroTitle = document.getElementById("hero-title");
+      const metaLine = document.getElementById("meta-line");
+      const poster = document.getElementById("poster");
+      const overview = document.getElementById("overview");
+      const tagline = document.getElementById("tagline");
+      const creator = document.getElementById("creator");
+      const scoreRing = document.getElementById("score-ring");
+      const scoreText = document.getElementById("score-text");
+      const castRow = document.getElementById("cast-row");
+      const statusLine = document.getElementById("status-line");
+      const userPill = document.getElementById("user-pill");
+      const logoutBtn = document.getElementById("logout-btn");
+      const trailerBtn = document.getElementById("trailer-btn");
+
+      const factStatus = document.getElementById("fact-status");
+      const factSeasons = document.getElementById("fact-seasons");
+      const factEpisodes = document.getElementById("fact-episodes");
+      const factRuntime = document.getElementById("fact-runtime");
+      const factFirst = document.getElementById("fact-first");
+      const factLanguage = document.getElementById("fact-language");
+      const factNetworks = document.getElementById("fact-networks");
+
+      const token = localStorage.getItem("access_token");
+      const tmdbImageBase = "https://image.tmdb.org/t/p/";
+
+      const getSeriesId = () => {
+        const match = window.location.pathname.match(/\/series\/(\d+)/);
+        if (match) {
+          return match[1];
+        }
+        const params = new URLSearchParams(window.location.search);
+        return params.get("id") || params.get("tv_id");
+      };
+
+      const buildImage = (path, size) => {
+        if (!path) {
+          return "linear-gradient(135deg, rgba(17, 181, 164, 0.3), rgba(55, 197, 240, 0.2))";
+        }
+        return `url(${tmdbImageBase}${size}${path})`;
+      };
+
+      const formatDate = (value) => value || "--";
+
+      const languageName = (code) => {
+        if (!code) return "--";
+        try {
+          const display = new Intl.DisplayNames(["zh"], { type: "language" });
+          return display.of(code) || code;
+        } catch (error) {
+          return code;
+        }
+      };
+
+      const setStatus = (message, isError = false) => {
+        statusLine.textContent = message;
+        statusLine.classList.toggle("error", isError);
+      };
+
+      const renderCast = (cast) => {
+        castRow.innerHTML = "";
+        if (!cast.length) {
+          const empty = document.createElement("div");
+          empty.className = "status-line";
+          empty.textContent = "暂无演员信息";
+          castRow.appendChild(empty);
+          return;
+        }
+        cast.forEach((member) => {
+          const card = document.createElement("div");
+          card.className = "cast-card";
+
+          const photo = document.createElement("div");
+          photo.className = "cast-photo";
+          photo.style.backgroundImage = buildImage(member.profile_path, "w185");
+
+          const meta = document.createElement("div");
+          meta.className = "cast-meta";
+
+          const name = document.createElement("div");
+          name.className = "cast-name";
+          name.textContent = member.name || "--";
+
+          const role = document.createElement("div");
+          role.className = "cast-role";
+          role.textContent = member.character || "--";
+
+          meta.appendChild(name);
+          meta.appendChild(role);
+          card.appendChild(photo);
+          card.appendChild(meta);
+          castRow.appendChild(card);
+        });
+      };
+
+      const renderDetails = (detail) => {
+        const title = detail.name || "未知剧集";
+        const year = detail.first_air_date ? `（${detail.first_air_date.slice(0, 4)}）` : "";
+        heroTitle.innerHTML = `${title} <span>${year}</span>`;
+
+        heroBackdrop.style.backgroundImage = buildImage(detail.backdrop_path, "w1280");
+        poster.style.backgroundImage = buildImage(detail.poster_path, "w500");
+
+        const genres = (detail.genres || []).map((item) => item.name).join(" / ") || "类型未知";
+        const runtime = detail.episode_run_time && detail.episode_run_time.length
+          ? `${detail.episode_run_time[0]} 分钟`
+          : "--";
+
+        metaLine.innerHTML = "";
+        [
+          detail.status || "状态未知",
+          genres,
+          runtime,
+        ].forEach((text) => {
+          const pill = document.createElement("span");
+          pill.textContent = text;
+          metaLine.appendChild(pill);
+        });
+
+        const scoreValue = Math.round((detail.vote_average || 0) * 10);
+        scoreRing.style.setProperty("--score", scoreValue);
+        scoreText.textContent = scoreValue ? `${scoreValue}` : "--";
+
+        tagline.textContent = detail.tagline || "";
+        tagline.style.display = detail.tagline ? "block" : "none";
+
+        overview.textContent = detail.overview || "暂无简介";
+
+        const creators = (detail.created_by || []).map((item) => item.name).join("、");
+        creator.innerHTML = creators
+          ? `<strong>主创</strong> ${creators}`
+          : "";
+
+        factStatus.textContent = detail.status || "--";
+        factSeasons.textContent = detail.number_of_seasons ? `${detail.number_of_seasons} 季` : "--";
+        factEpisodes.textContent = detail.number_of_episodes ? `${detail.number_of_episodes} 集` : "--";
+        factRuntime.textContent = runtime;
+        factFirst.textContent = formatDate(detail.first_air_date);
+        factLanguage.textContent = languageName(detail.original_language);
+        factNetworks.textContent = detail.networks && detail.networks.length
+          ? detail.networks.map((item) => item.name).join("、")
+          : "--";
+      };
+
+      const renderTrailer = (videos) => {
+        const trailer = (videos.results || []).find(
+          (item) => item.site === "YouTube" && item.type === "Trailer"
+        );
+        if (!trailer) {
+          trailerBtn.disabled = true;
+          trailerBtn.textContent = "暂无预告";
+          return;
+        }
+        trailerBtn.dataset.url = `https://www.youtube.com/watch?v=${trailer.key}`;
+      };
+
+      const initSession = async () => {
+        if (!token) {
+          userPill.textContent = "未登录";
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/v1/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Session invalid");
+          }
+
+          const data = await response.json();
+          userPill.textContent = data.email;
+        } catch (error) {
+          userPill.textContent = "会话过期";
+          localStorage.removeItem("access_token");
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
+        }
+      };
+
+      const loadSeries = async () => {
+        const seriesId = getSeriesId();
+        if (!seriesId) {
+          setStatus("缺少剧集 ID，请从搜索结果进入。", true);
+          return;
+        }
+
+        setStatus("加载中...");
+        try {
+          const [detailRes, creditsRes, videosRes] = await Promise.all([
+            fetch(`/api/v1/tmdb/tv/${seriesId}`),
+            fetch(`/api/v1/tmdb/tv/${seriesId}/credits`),
+            fetch(`/api/v1/tmdb/tv/${seriesId}/videos`),
+          ]);
+
+          const detail = await detailRes.json();
+          const credits = await creditsRes.json();
+          const videos = await videosRes.json();
+
+          if (!detailRes.ok) {
+            throw new Error(detail.error || "加载失败");
+          }
+
+          renderDetails(detail);
+          renderCast((credits.cast || []).slice(0, 12));
+          renderTrailer(videos || { results: [] });
+          setStatus("");
+        } catch (error) {
+          setStatus(`加载失败：${error.message}`, true);
+        }
+      };
+
+      trailerBtn.addEventListener("click", () => {
+        const url = trailerBtn.dataset.url;
+        if (url) {
+          window.open(url, "_blank");
+        }
+      });
+
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+      });
+
+      initSession();
+      loadSeries();
+    </script>
+  </body>
+</html>

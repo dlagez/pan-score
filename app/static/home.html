@@ -1,21 +1,24 @@
-<!doctype html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="zh">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pan Score | Home</title>
+    <title>Pan Score | 首页</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Sans+SC:wght@400;500;600&display=swap");
+
       :root {
-        --bg-1: #0a1013;
-        --bg-2: #112028;
-        --accent: #f6c453;
-        --accent-2: #5eead4;
-        --ink: #e8f1f3;
-        --muted: #a3b4bb;
-        --card: rgba(16, 24, 28, 0.82);
+        --bg-1: #07121b;
+        --bg-2: #0a1d2b;
+        --panel: rgba(11, 25, 36, 0.92);
+        --panel-2: rgba(14, 33, 48, 0.96);
         --stroke: rgba(255, 255, 255, 0.08);
-        --shadow: rgba(4, 8, 10, 0.45);
-        --danger: #ff6b6b;
+        --ink: #ecf2f6;
+        --muted: #9fb2c1;
+        --accent: #11b5a4;
+        --accent-2: #37c5f0;
+        --accent-3: #f39b5a;
+        --shadow: rgba(3, 8, 12, 0.55);
       }
 
       * {
@@ -26,56 +29,55 @@
         margin: 0;
         min-height: 100vh;
         color: var(--ink);
-        font-family: "Space Grotesk", "IBM Plex Sans", "Segoe UI", sans-serif;
+        font-family: "DM Sans", "IBM Plex Sans SC", "Segoe UI", sans-serif;
         background:
-          radial-gradient(900px 520px at 5% 10%, #1a3a41 0%, transparent 60%),
-          radial-gradient(700px 520px at 92% -10%, #1b2b35 0%, transparent 55%),
-          linear-gradient(150deg, var(--bg-1), var(--bg-2));
-        display: grid;
-        place-items: center;
-        padding: 24px;
+          radial-gradient(900px 420px at 85% 15%, rgba(55, 197, 240, 0.16), transparent 60%),
+          radial-gradient(700px 520px at 12% 20%, rgba(17, 181, 164, 0.14), transparent 55%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+        padding: 24px 18px 48px;
       }
 
       body::after {
         content: "";
         position: fixed;
-        inset: 12% 6% auto auto;
-        width: 260px;
-        height: 260px;
-        border-radius: 45% 55% 55% 45%;
-        background: radial-gradient(circle, rgba(246, 196, 83, 0.2), transparent 65%);
-        filter: blur(10px);
+        inset: 0;
+        background-image:
+          radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 3px 3px;
+        opacity: 0.3;
         pointer-events: none;
+        mix-blend-mode: screen;
       }
 
       .page {
-        width: min(1080px, 100%);
+        max-width: 1200px;
+        margin: 0 auto;
         display: grid;
-        gap: 24px;
+        gap: 28px;
       }
 
       header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 18px;
+        flex-wrap: wrap;
       }
 
       .brand {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 14px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        font-weight: 600;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--ink);
       }
 
       .logo {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
         border-radius: 14px;
-        background: conic-gradient(from 120deg, var(--accent), #3a5f67, var(--accent-2));
-        box-shadow: 0 10px 30px var(--shadow);
+        background: conic-gradient(from 120deg, var(--accent), var(--accent-2), var(--accent-3));
+        box-shadow: 0 12px 26px var(--shadow);
         position: relative;
       }
 
@@ -83,64 +85,107 @@
         content: "";
         position: absolute;
         inset: 5px;
-        border-radius: 11px;
-        background: #0c1417;
+        border-radius: 10px;
+        background: #0b1822;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
       }
 
-      nav {
+      .brand-title {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+      }
+
+      .brand-sub {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .nav {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
       }
 
-      nav a,
-      nav button {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(12, 18, 21, 0.6);
+      .nav a {
         color: var(--ink);
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-size: 0.85rem;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        cursor: pointer;
         text-decoration: none;
+        font-size: 0.9rem;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid transparent;
       }
 
-      nav button {
-        font-family: inherit;
+      .nav a:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+
+      .account {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .pill {
+        background: var(--panel);
+        border: 1px solid var(--stroke);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.86rem;
+      }
+
+      .ghost-btn {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
       }
 
       .hero {
-        background: linear-gradient(135deg, rgba(246, 196, 83, 0.14), rgba(94, 234, 212, 0.12));
-        border: 1px solid var(--stroke);
-        border-radius: 26px;
-        padding: 28px;
-        box-shadow: 0 20px 60px var(--shadow);
-        display: grid;
-        gap: 14px;
-        animation: rise 0.6s ease both;
-        animation-delay: 0.05s;
+        position: relative;
+        border-radius: 30px;
+        overflow: hidden;
+        background: #0a1a27;
+        box-shadow: 0 24px 70px var(--shadow);
       }
 
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(94, 234, 212, 0.1);
-        color: var(--accent-2);
-        font-size: 0.82rem;
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(7, 18, 27, 0.92), rgba(7, 18, 27, 0.4));
+        z-index: 1;
+      }
+
+      .hero-image {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        filter: saturate(1.05);
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 36px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .hero-label {
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        width: fit-content;
+        letter-spacing: 0.16em;
+        font-size: 0.75rem;
+        color: var(--accent-2);
       }
 
       .hero h1 {
         margin: 0;
-        font-size: clamp(2rem, 3.8vw, 2.9rem);
+        font-size: clamp(2.2rem, 4vw, 3.4rem);
         line-height: 1.05;
       }
 
@@ -148,111 +193,234 @@
         margin: 0;
         color: var(--muted);
         max-width: 560px;
+        line-height: 1.6;
       }
 
-      .hero-actions {
+      .hero-meta {
         display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .hero-meta span {
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(8, 16, 24, 0.5);
+      }
+
+      .search-bar {
+        display: flex;
+        gap: 10px;
+        background: rgba(5, 12, 18, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        padding: 6px 8px 6px 16px;
+        max-width: 620px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font-size: 0.95rem;
+        outline: none;
+      }
+
+      .search-bar button {
+        border: 0;
+        border-radius: 999px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .section {
+        display: grid;
+        gap: 12px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 12px;
         flex-wrap: wrap;
       }
 
-      .button {
+      .section-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+      }
+
+      .toggle {
+        display: inline-flex;
+        gap: 4px;
+        background: rgba(10, 20, 28, 0.8);
+        border-radius: 999px;
+        padding: 4px;
+        border: 1px solid var(--stroke);
+      }
+
+      .toggle button {
         border: 0;
-        border-radius: 16px;
-        padding: 12px 18px;
-        background: linear-gradient(120deg, var(--accent), #f3a93b);
-        color: #151208;
-        font-weight: 700;
-        letter-spacing: 0.02em;
+        background: transparent;
+        color: var(--ink);
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 999px;
         cursor: pointer;
       }
 
-      .ghost {
-        border-radius: 16px;
-        padding: 12px 18px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: var(--ink);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+      .toggle button.active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #07131d;
       }
 
-      .grid {
+      .card-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(170px, 1fr);
         gap: 16px;
-        animation: rise 0.6s ease both;
-        animation-delay: 0.12s;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
       }
 
-      .tile {
-        background: var(--card);
+      .card-row::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .card-row::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+      }
+
+      .media-card {
+        background: var(--panel);
         border: 1px solid var(--stroke);
-        border-radius: 20px;
-        padding: 18px;
-        box-shadow: 0 18px 50px var(--shadow);
+        border-radius: 18px;
+        overflow: hidden;
+        min-height: 310px;
         display: grid;
-        gap: 8px;
+        grid-template-rows: 240px auto;
+        box-shadow: 0 16px 40px var(--shadow);
+        text-decoration: none;
+        color: inherit;
       }
 
-      .tile span {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--muted);
+      .media-card.clickable {
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
-      .panel {
-        background: var(--card);
-        border: 1px solid var(--stroke);
-        border-radius: 24px;
-        padding: 20px;
+      .media-card.clickable:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 50px var(--shadow);
+      }
+
+      .poster {
+        position: relative;
+        background-size: cover;
+        background-position: center;
+      }
+
+      .poster::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(7, 12, 18, 0.9));
+      }
+
+      .score {
+        position: absolute;
+        left: 12px;
+        bottom: 12px;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent) calc(var(--score) * 1%), rgba(255, 255, 255, 0.2) 0);
         display: grid;
-        gap: 14px;
-        animation: rise 0.6s ease both;
-        animation-delay: 0.2s;
+        place-items: center;
+        color: var(--ink);
+        font-weight: 600;
+        z-index: 2;
       }
 
-      .panel h2 {
-        margin: 0;
-        font-size: 1.2rem;
+      .score::after {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        background: #0b1721;
+        z-index: -1;
       }
 
-      .status {
-        color: var(--muted);
+      .score span {
+        position: relative;
+        font-size: 0.78rem;
+      }
+
+      .media-meta {
+        padding: 12px 14px 16px;
+        display: grid;
+        gap: 6px;
+      }
+
+      .media-title {
         font-size: 0.95rem;
-        min-height: 1.2em;
+        font-weight: 600;
+        margin: 0;
       }
 
-      .status.error {
-        color: var(--danger);
+      .media-date {
+        color: var(--muted);
+        font-size: 0.82rem;
       }
 
-      .token {
-        background: rgba(7, 12, 14, 0.8);
-        border-radius: 14px;
-        padding: 12px 14px;
-        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-        font-size: 0.9rem;
-        color: var(--accent-2);
+      .row-status {
+        font-size: 0.88rem;
+        color: var(--muted);
       }
 
-      @keyframes rise {
-        from {
-          opacity: 0;
-          transform: translateY(12px);
+      .row-status.error {
+        color: #f47174;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 900px) {
+        header {
+          justify-content: center;
         }
-        to {
-          opacity: 1;
-          transform: translateY(0);
+
+        .nav {
+          justify-content: center;
+        }
+
+        .account {
+          width: 100%;
+          justify-content: center;
         }
       }
 
       @media (max-width: 720px) {
-        header {
+        .hero-content {
+          padding: 28px;
+        }
+
+        .search-bar {
           flex-direction: column;
-          align-items: flex-start;
+          border-radius: 20px;
+          align-items: stretch;
+          padding: 12px;
         }
       }
     </style>
@@ -260,88 +428,214 @@
   <body>
     <main class="page">
       <header>
-        <div class="brand">
+        <a class="brand" href="/home" aria-label="返回首页">
           <div class="logo" aria-hidden="true"></div>
-          <div>Pan Score</div>
+          <div>
+            <div class="brand-title">Pan Score</div>
+            <div class="brand-sub">网盘链接评分与推荐</div>
+          </div>
+        </a>
+        <nav class="nav"></nav>
+        <div class="account">
+          <div class="pill" id="user-pill">访客</div>
+          <button class="ghost-btn" id="logout-btn" type="button">退出登录</button>
         </div>
-        <nav>
-          <a href="/login">Switch Account</a>
-          <button type="button" id="logout-btn">Sign Out</button>
-        </nav>
       </header>
 
-      <section class="hero">
-        <span class="badge">Dashboard</span>
-        <h1>Welcome home.</h1>
-        <p id="user-line">Checking your session...</p>
-        <div class="hero-actions">
-          <button class="button" id="copy-btn" type="button">Copy Token</button>
-          <a class="ghost" href="/login">Manage Access</a>
+      <section class="hero" id="hero">
+        <div class="hero-image" id="hero-image"></div>
+        <div class="hero-content">
+          <div class="hero-label">正在热议</div>
+          <h1 id="hero-title">加载热门内容中...</h1>
+          <p id="hero-overview">正在拉取 TMDB 数据，请稍候。</p>
+          <div class="hero-meta" id="hero-meta"></div>
+          <form class="search-bar" id="search-form" action="/search" method="get">
+            <input id="search-input" name="q" type="search" placeholder="搜索电影、剧集或人物" />
+            <button type="submit">搜索</button>
+          </form>
         </div>
       </section>
 
-      <section class="grid">
-        <div class="tile">
-          <span>API Status</span>
-          <strong>Ready for requests</strong>
-          <div class="status" id="api-status">Checking...</div>
+      <section class="section">
+        <div class="section-header">
+          <h2>热门趋势</h2>
+          <div class="toggle" id="trend-toggle">
+            <button type="button" data-window="day" class="active">今日</button>
+            <button type="button" data-window="week">本周</button>
+          </div>
         </div>
-        <div class="tile">
-          <span>Session</span>
-          <strong>JWT Active</strong>
-          <div class="status" id="session-status">Pending...</div>
-        </div>
-        <div class="tile">
-          <span>Next Step</span>
-          <strong>Build your dashboard</strong>
-          <div class="status">Add protected views here.</div>
-        </div>
+        <div class="row-status" id="trending-status"></div>
+        <div class="card-row" id="trending-row"></div>
       </section>
 
-      <section class="panel">
-        <h2>Token Preview</h2>
-        <div class="token" id="token-preview">No token loaded.</div>
-        <div class="status" id="token-status"></div>
+      <section class="section">
+        <div class="section-header">
+          <h2>正在流行</h2>
+          <div class="toggle" id="popular-toggle">
+            <button type="button" data-type="movie" class="active">电影</button>
+            <button type="button" data-type="tv">剧集</button>
+          </div>
+        </div>
+        <div class="row-status" id="popular-status"></div>
+        <div class="card-row" id="popular-row"></div>
       </section>
+
     </main>
 
     <script>
-      const userLine = document.getElementById("user-line");
-      const tokenPreview = document.getElementById("token-preview");
-      const tokenStatus = document.getElementById("token-status");
-      const apiStatus = document.getElementById("api-status");
-      const sessionStatus = document.getElementById("session-status");
-      const copyBtn = document.getElementById("copy-btn");
+      const heroImage = document.getElementById("hero-image");
+      const heroTitle = document.getElementById("hero-title");
+      const heroOverview = document.getElementById("hero-overview");
+      const heroMeta = document.getElementById("hero-meta");
+      const userPill = document.getElementById("user-pill");
       const logoutBtn = document.getElementById("logout-btn");
+      const trendingRow = document.getElementById("trending-row");
+      const trendingStatus = document.getElementById("trending-status");
+      const popularRow = document.getElementById("popular-row");
+      const popularStatus = document.getElementById("popular-status");
+      const searchForm = document.getElementById("search-form");
+      const searchInput = document.getElementById("search-input");
 
       const token = localStorage.getItem("access_token");
+      const tmdbImageBase = "https://image.tmdb.org/t/p/";
 
-      const maskToken = (value) => {
-        if (!value) {
-          return "No token loaded.";
+      const buildImage = (path, size) => {
+        if (!path) {
+          return "linear-gradient(135deg, rgba(17, 181, 164, 0.3), rgba(55, 197, 240, 0.2))";
         }
-        return `${value.slice(0, 18)}...${value.slice(-10)}`;
+        return `url(${tmdbImageBase}${size}${path})`;
       };
 
-      const redirectToLogin = () => {
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1000);
+      const formatDate = (value) => {
+        if (!value) {
+          return "日期未知";
+        }
+        return value;
+      };
+
+      const clearRow = (row) => {
+        row.innerHTML = "";
+      };
+
+      const setStatus = (el, message, isError = false) => {
+        el.textContent = message;
+        el.classList.toggle("error", isError);
+      };
+
+      const createCard = (item) => {
+        const isTv = item.media_type === "tv" || (!item.media_type && item.first_air_date);
+        const card = document.createElement(isTv ? "a" : "article");
+        card.className = isTv ? "media-card clickable" : "media-card";
+        if (isTv) {
+          card.href = `/series/${item.id}`;
+        }
+
+        const poster = document.createElement("div");
+        poster.className = "poster";
+        poster.style.backgroundImage = buildImage(item.poster_path, "w342");
+
+        const score = document.createElement("div");
+        score.className = "score";
+        const scoreValue = Math.round((item.vote_average || 0) * 10);
+        score.style.setProperty("--score", scoreValue);
+        const scoreText = document.createElement("span");
+        scoreText.textContent = `${scoreValue}`;
+        score.appendChild(scoreText);
+        poster.appendChild(score);
+
+        const meta = document.createElement("div");
+        meta.className = "media-meta";
+
+        const title = document.createElement("h3");
+        title.className = "media-title";
+        title.textContent = item.title || item.name || "未命名";
+
+        const date = document.createElement("div");
+        date.className = "media-date";
+        date.textContent = formatDate(item.release_date || item.first_air_date);
+
+        meta.appendChild(title);
+        meta.appendChild(date);
+
+        card.appendChild(poster);
+        card.appendChild(meta);
+        return card;
+      };
+
+      const renderRow = (row, items) => {
+        clearRow(row);
+        items.forEach((item) => {
+          row.appendChild(createCard(item));
+        });
+      };
+
+      const updateHero = (item) => {
+        if (!item) {
+          heroTitle.textContent = "暂无推荐";
+          heroOverview.textContent = "请检查 TMDB 配置。";
+          heroMeta.textContent = "";
+          heroImage.style.backgroundImage = "";
+          return;
+        }
+
+        heroTitle.textContent = item.title || item.name || "热门推荐";
+        heroOverview.textContent = item.overview || "暂无简介";
+        heroMeta.innerHTML = "";
+
+        const metaItems = [
+          item.media_type === "tv" ? "剧集" : "电影",
+          formatDate(item.release_date || item.first_air_date),
+          `评分 ${Math.round((item.vote_average || 0) * 10)}`,
+        ];
+
+        metaItems.forEach((text) => {
+          const tag = document.createElement("span");
+          tag.textContent = text;
+          heroMeta.appendChild(tag);
+        });
+
+        heroImage.style.backgroundImage = buildImage(item.backdrop_path, "w1280");
+      };
+
+      const loadTrending = async (timeWindow) => {
+        setStatus(trendingStatus, "加载中...");
+        try {
+          const response = await fetch(`/api/v1/tmdb/trending?media_type=all&time_window=${timeWindow}`);
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "加载失败");
+          }
+          renderRow(trendingRow, data.results.slice(0, 12));
+          setStatus(trendingStatus, "");
+          updateHero(data.results[0]);
+        } catch (error) {
+          setStatus(trendingStatus, `热门趋势加载失败：${error.message}`, true);
+        }
+      };
+
+      const loadPopular = async (type) => {
+        setStatus(popularStatus, "加载中...");
+        try {
+          const response = await fetch(`/api/v1/tmdb/popular?media_type=${type}`);
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "加载失败");
+          }
+          renderRow(popularRow, data.results.slice(0, 12));
+          setStatus(popularStatus, "");
+        } catch (error) {
+          setStatus(popularStatus, `正在流行加载失败：${error.message}`, true);
+        }
       };
 
       const initSession = async () => {
         if (!token) {
-          userLine.textContent = "No active session. Redirecting to login...";
-          tokenPreview.textContent = "Missing access token.";
-          tokenStatus.className = "status error";
-          tokenStatus.textContent = "Please sign in to continue.";
-          sessionStatus.textContent = "Not signed in.";
-          redirectToLogin();
+          userPill.textContent = "未登录";
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
           return;
         }
-
-        tokenPreview.textContent = maskToken(token);
-        sessionStatus.textContent = "Token present.";
 
         try {
           const response = await fetch("/api/v1/auth/me", {
@@ -349,49 +643,49 @@
               Authorization: `Bearer ${token}`,
             },
           });
+
           if (!response.ok) {
-            throw new Error("Session expired");
+            throw new Error("Session invalid");
           }
+
           const data = await response.json();
-          userLine.textContent = `Signed in as ${data.email}`;
-          tokenStatus.className = "status";
-          tokenStatus.textContent = "Session verified.";
+          userPill.textContent = data.email;
         } catch (error) {
-          userLine.textContent = "Session check failed. Redirecting...";
-          tokenStatus.className = "status error";
-          tokenStatus.textContent = "Token invalid or expired.";
+          userPill.textContent = "会话过期";
           localStorage.removeItem("access_token");
-          redirectToLogin();
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 800);
         }
       };
 
-      const checkApi = async () => {
-        try {
-          const response = await fetch("/health");
-          if (!response.ok) {
-            throw new Error("API unhealthy");
-          }
-          apiStatus.textContent = "Health check ok.";
-        } catch (error) {
-          apiStatus.textContent = "Health check failed.";
-          apiStatus.className = "status error";
-        }
-      };
-
-      copyBtn.addEventListener("click", async () => {
-        if (!token) {
-          tokenStatus.className = "status error";
-          tokenStatus.textContent = "No token to copy.";
+      document.getElementById("trend-toggle").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) {
           return;
         }
-        try {
-          await navigator.clipboard.writeText(token);
-          tokenStatus.className = "status";
-          tokenStatus.textContent = "Token copied to clipboard.";
-        } catch (error) {
-          tokenStatus.className = "status error";
-          tokenStatus.textContent = "Clipboard access denied.";
+        const buttons = document.querySelectorAll("#trend-toggle button");
+        buttons.forEach((btn) => btn.classList.toggle("active", btn === button));
+        loadTrending(button.dataset.window);
+      });
+
+      document.getElementById("popular-toggle").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) {
+          return;
         }
+        const buttons = document.querySelectorAll("#popular-toggle button");
+        buttons.forEach((btn) => btn.classList.toggle("active", btn === button));
+        loadPopular(button.dataset.type);
+      });
+
+      searchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) {
+          return;
+        }
+        window.location.href = `/search?q=${encodeURIComponent(query)}`;
       });
 
       logoutBtn.addEventListener("click", () => {
@@ -400,7 +694,8 @@
       });
 
       initSession();
-      checkApi();
+      loadTrending("day");
+      loadPopular("movie");
     </script>
   </body>
 </html>
