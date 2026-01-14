@@ -34,30 +34,64 @@ class TmdbEndpointsTest(unittest.TestCase):
     def _timestamp():
         return __import__("datetime").datetime.now().strftime("%Y-%y-%d_%H-%M-%S")
 
-    def test_popular_movie_default(self):
-        endpoint = "/api/v1/tmdb/popular"
+    def _get_and_save(self, endpoint, filename):
         resp = self.client.get(endpoint)
-        self._save_response("tmdb_popular_movie.json", endpoint, resp.get_json())
+        self._save_response(filename, endpoint, resp.get_json())
         self.assertEqual(resp.status_code, 200, msg=resp.get_json())
+        return resp.get_json()
+
+    def test_popular_movie_default(self):
+        self._get_and_save("/api/v1/tmdb/popular", "tmdb_popular_movie.json")
 
     def test_popular_tv_with_language(self):
-        endpoint = "/api/v1/tmdb/popular?media_type=tv&page=2&language=zh-CN"
-        resp = self.client.get(endpoint)
-        self._save_response("tmdb_popular_tv.json", endpoint, resp.get_json())
-        self.assertEqual(resp.status_code, 200, msg=resp.get_json())
+        self._get_and_save(
+            "/api/v1/tmdb/popular?media_type=tv&page=1&language=zh-CN",
+            "tmdb_popular_tv.json",
+        )
 
     def test_now_playing_movie_default(self):
-        endpoint = "/api/v1/tmdb/now_playing"
-        resp = self.client.get(endpoint)
-        self._save_response("tmdb_now_playing_movie.json", endpoint, resp.get_json())
-        self.assertEqual(resp.status_code, 200, msg=resp.get_json())
+        self._get_and_save("/api/v1/tmdb/now_playing", "tmdb_now_playing_movie.json")
 
     def test_now_playing_tv_with_language(self):
-        endpoint = "/api/v1/tmdb/now_playing?media_type=tv&page=3&language=zh-CN"
-        resp = self.client.get(endpoint)
-        self._save_response("tmdb_now_playing_tv.json", endpoint, resp.get_json())
-        self.assertEqual(resp.status_code, 200, msg=resp.get_json())
+        self._get_and_save(
+            "/api/v1/tmdb/now_playing?media_type=tv&page=1&language=zh-CN",
+            "tmdb_now_playing_tv.json",
+        )
 
+    def test_trending_all_day(self):
+        self._get_and_save("/api/v1/tmdb/trending", "tmdb_trending_all_day.json")
 
+    def test_trending_tv_week(self):
+        self._get_and_save(
+            "/api/v1/tmdb/trending?media_type=tv&time_window=week&page=1&language=zh-CN",
+            "tmdb_trending_tv_week.json",
+        )
+
+    def test_search_multi(self):
+        self._get_and_save(
+            "/api/v1/tmdb/search?media_type=multi&query=Rental%20Family&language=zh-CN",
+            "tmdb_search_multi.json",
+        )
+
+    def test_tv_detail(self):
+        self._get_and_save("/api/v1/tmdb/tv/95479?language=zh-CN", "tmdb_tv_detail.json")
+
+    def test_tv_credits(self):
+        self._get_and_save("/api/v1/tmdb/tv/95479/credits?language=zh-CN", "tmdb_tv_credits.json")
+
+    def test_tv_videos(self):
+        self._get_and_save("/api/v1/tmdb/tv/95479/videos?language=zh-CN", "tmdb_tv_videos.json")
+
+    def test_movie_detail(self):
+        self._get_and_save("/api/v1/tmdb/movie/1208348?language=zh-CN", "tmdb_movie_detail.json")
+
+    def test_movie_credits(self):
+        self._get_and_save("/api/v1/tmdb/movie/1208348/credits?language=zh-CN", "tmdb_movie_credits.json")
+
+    def test_movie_videos(self):
+        self._get_and_save("/api/v1/tmdb/movie/1208348/videos?language=zh-CN", "tmdb_movie_videos.json")
+
+# python -m unittest test.test_tmdb_endpoints.TmdbEndpointsTest.test_movie_detail
+# python -m unittest test.test_tmdb_endpoints.TmdbEndpointsTest.test_tv_detail
 if __name__ == "__main__":
     unittest.main()

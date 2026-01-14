@@ -880,18 +880,6 @@
         renderShareLinks(detail.share_links || []);
       };
 
-      const renderTrailer = (videos) => {
-        const trailer = (videos.results || []).find(
-          (item) => item.site === "YouTube" && item.type === "Trailer"
-        );
-        if (!trailer) {
-          trailerBtn.disabled = true;
-          trailerBtn.textContent = "暂无预告";
-          return;
-        }
-        trailerBtn.dataset.url = `https://www.youtube.com/watch?v=${trailer.key}`;
-      };
-
       const initSession = async () => {
         if (!token) {
           setUserPill("未登录");
@@ -932,15 +920,13 @@
 
         setStatus("加载中...");
         try {
-          const [detailRes, creditsRes, videosRes] = await Promise.all([
+          const [detailRes, creditsRes] = await Promise.all([
             fetch(withLanguage(`/api/v1/tmdb/movie/${movieId}`)),
             fetch(withLanguage(`/api/v1/tmdb/movie/${movieId}/credits`)),
-            fetch(withLanguage(`/api/v1/tmdb/movie/${movieId}/videos`)),
           ]);
 
           const detail = await detailRes.json();
           const credits = await creditsRes.json();
-          const videos = await videosRes.json();
 
           if (!detailRes.ok) {
             throw new Error(detail.error || "加载失败");
@@ -949,19 +935,25 @@
           renderDetails(detail);
           renderCast((credits.cast || []).slice(0, 12));
           renderDirector(credits || {});
-          renderTrailer(videos || { results: [] });
+          if (trailerBtn) {
+            trailerBtn.disabled = true;
+            trailerBtn.textContent = "暂无预告";
+            trailerBtn.removeAttribute("data-url");
+          }
           setStatus("");
         } catch (error) {
           setStatus(`加载失败：${error.message}`, true);
         }
       };
 
-      trailerBtn.addEventListener("click", () => {
-        const url = trailerBtn.dataset.url;
-        if (url) {
-          window.open(url, "_blank");
-        }
-      });
+      if (trailerBtn) {
+        trailerBtn.addEventListener("click", () => {
+          const url = trailerBtn.dataset.url;
+          if (url) {
+            window.open(url, "_blank");
+          }
+        });
+      }
 
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("access_token");

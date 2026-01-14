@@ -11,3 +11,4 @@ class Config:
     TMDB_ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN")
     TMDB_LANGUAGE = os.getenv("TMDB_LANGUAGE", "zh-CN")
     TMDB_BASE_URL = os.getenv("TMDB_BASE_URL", "https://api.themoviedb.org/3")
+    TMDB_CACHE_ENABLED = os.getenv("TMDB_CACHE_ENABLED", "true").lower() in ("1", "true", "yes")

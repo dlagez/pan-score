@@ -74,10 +74,16 @@ def _tmdb_fetch(path: str, params: dict) -> tuple[dict, int]:
 
 
 def _cached_fetch(path: str, params: dict) -> tuple[dict, int]:
+    if not current_app.config.get("TMDB_CACHE_ENABLED", True):
+        normalized = _normalize_params(params)
+        print("跳过缓存，直接查询数据")
+        return _tmdb_fetch(path, normalized)
+
     normalized = _normalize_params(params)
     cache_key = _build_cache_key(path, normalized)
 
     cached = CachedPayload.query.filter_by(cache_key=cache_key).first()
+    print("查询缓存数据")
     if cached and not _is_expired(cached.updated_at):
         return cached.payload, 200
 

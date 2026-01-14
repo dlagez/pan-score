@@ -1077,6 +1077,9 @@
       };
 
       const renderTrailer = (videos) => {
+        if (!trailerBtn) {
+          return;
+        }
         const trailer = (videos.results || []).find(
           (item) => item.site === "YouTube" && item.type === "Trailer"
         );
@@ -1168,12 +1171,14 @@
         }
       };
 
-      trailerBtn.addEventListener("click", () => {
-        const url = trailerBtn.dataset.url;
-        if (url) {
-          window.open(url, "_blank");
-        }
-      });
+      if (trailerBtn) {
+        trailerBtn.addEventListener("click", () => {
+          const url = trailerBtn.dataset.url;
+          if (url) {
+            window.open(url, "_blank");
+          }
+        });
+      }
 
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("access_token");
