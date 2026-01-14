@@ -37,6 +37,11 @@ def create_app():
     def series_page(series_id: int | None = None):
         return send_from_directory("static", "series.html")
 
+    @app.get("/movie")
+    @app.get("/movie/<int:movie_id>")
+    def movie_page(movie_id: int | None = None):
+        return send_from_directory("static", "movie.html")
+
     @app.get("/login")
     def login_page():
         return send_from_directory("static", "login.html")

@@ -21,6 +21,11 @@ def _normalize_params(params: dict) -> dict:
     return normalized
 
 
+def _language_param() -> dict:
+    language = request.args.get("language")
+    return {"language": language} if language else {}
+
+
 def _build_cache_key(path: str, params: dict) -> str:
     query = urlparse.urlencode(sorted(params.items()))
     return f"{path}?{query}"
@@ -87,14 +92,16 @@ def tmdb_trending():
     media_type = request.args.get("media_type", "all")
     time_window = request.args.get("time_window", "day")
     page = request.args.get("page", "1")
-    return _cached_fetch(f"/trending/{media_type}/{time_window}", {"page": page})
+    params = {"page": page, **_language_param()}
+    return _cached_fetch(f"/trending/{media_type}/{time_window}", params)
 
 
 @v1_bp.get("/tmdb/popular")
 def tmdb_popular():
     media_type = request.args.get("media_type", "movie")
     page = request.args.get("page", "1")
-    return _cached_fetch(f"/{media_type}/popular", {"page": page})
+    params = {"page": page, **_language_param()}
+    return _cached_fetch(f"/{media_type}/popular", params)
 
 
 @v1_bp.get("/tmdb/now_playing")
@@ -102,7 +109,8 @@ def tmdb_now_playing():
     media_type = request.args.get("media_type", "movie")
     page = request.args.get("page", "1")
     path = "/movie/now_playing" if media_type == "movie" else "/tv/on_the_air"
-    return _cached_fetch(path, {"page": page})
+    params = {"page": page, **_language_param()}
+    return _cached_fetch(path, params)
 
 
 @v1_bp.get("/tmdb/search")
@@ -112,21 +120,36 @@ def tmdb_search():
         return {"error": "MISSING_QUERY"}, 400
     media_type = request.args.get("media_type", "multi")
     page = request.args.get("page", "1")
-    params = {"query": query, "page": page, "include_adult": "false"}
+    params = {"query": query, "page": page, "include_adult": "false", **_language_param()}
     normalized = _normalize_params(params)
     return _tmdb_fetch(f"/search/{media_type}", normalized)
 
 
 @v1_bp.get("/tmdb/tv/<int:tv_id>")
 def tmdb_tv_detail(tv_id: int):
-    return _cached_fetch(f"/tv/{tv_id}", {})
+    return _cached_fetch(f"/tv/{tv_id}", _language_param())
 
 
 @v1_bp.get("/tmdb/tv/<int:tv_id>/credits")
 def tmdb_tv_credits(tv_id: int):
-    return _cached_fetch(f"/tv/{tv_id}/credits", {})
+    return _cached_fetch(f"/tv/{tv_id}/credits", _language_param())
 
 
 @v1_bp.get("/tmdb/tv/<int:tv_id>/videos")
 def tmdb_tv_videos(tv_id: int):
-    return _cached_fetch(f"/tv/{tv_id}/videos", {})
+    return _cached_fetch(f"/tv/{tv_id}/videos", _language_param())
+
+
+@v1_bp.get("/tmdb/movie/<int:movie_id>")
+def tmdb_movie_detail(movie_id: int):
+    return _cached_fetch(f"/movie/{movie_id}", _language_param())
+
+
+@v1_bp.get("/tmdb/movie/<int:movie_id>/credits")
+def tmdb_movie_credits(movie_id: int):
+    return _cached_fetch(f"/movie/{movie_id}/credits", _language_param())
+
+
+@v1_bp.get("/tmdb/movie/<int:movie_id>/videos")
+def tmdb_movie_videos(movie_id: int):
+    return _cached_fetch(f"/movie/{movie_id}/videos", _language_param())

@@ -127,12 +127,57 @@
         align-items: center;
       }
 
+      .lang-select {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(8, 18, 26, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.86rem;
+        color: var(--ink);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      .lang-select select {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: inherit;
+        font-family: inherit;
+        outline: none;
+        cursor: pointer;
+        padding: 2px 4px;
+      }
+
+      .lang-select span {
+        font-size: inherit;
+        color: inherit;
+      }
+
+      .lang-select select option {
+        background: #0b1822;
+        color: var(--ink);
+      }
+
       .pill {
         background: var(--panel);
         border: 1px solid var(--stroke);
         border-radius: 999px;
         padding: 6px 12px;
         font-size: 0.86rem;
+      }
+
+      .user-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        font-weight: 600;
+        text-transform: uppercase;
       }
 
       .ghost-btn {
@@ -409,7 +454,14 @@
           <a href="#">链接库</a>
         </nav>
         <div class="account">
-          <div class="pill" id="user-pill">访客</div>
+          <div class="lang-select">
+            <span>语言</span>
+            <select id="language-select" aria-label="选择语言">
+              <option value="zh-CN">中文</option>
+              <option value="en-US">English</option>
+            </select>
+          </div>
+          <div class="pill user-pill" id="user-pill">访客</div>
           <button class="ghost-btn" id="logout-btn" type="button">退出登录</button>
         </div>
       </header>
@@ -453,6 +505,7 @@
 
     <script>
       const userPill = document.getElementById("user-pill");
+      const languageSelect = document.getElementById("language-select");
       const logoutBtn = document.getElementById("logout-btn");
       const searchForm = document.getElementById("search-form");
       const searchInput = document.getElementById("search-input");
@@ -467,6 +520,35 @@
 
       const token = localStorage.getItem("access_token");
       const tmdbImageBase = "https://image.tmdb.org/t/p/";
+      const defaultLanguage = "zh-CN";
+
+      const getPreferredLanguage = () => {
+        const stored = localStorage.getItem("tmdb_language");
+        if (stored) {
+          return stored;
+        }
+        localStorage.setItem("tmdb_language", defaultLanguage);
+        return defaultLanguage;
+      };
+
+      const applyLanguageSelection = () => {
+        if (languageSelect) {
+          languageSelect.value = getPreferredLanguage();
+        }
+      };
+
+      const withLanguage = (url) => {
+        const language = getPreferredLanguage();
+        const joiner = url.includes("?") ? "&" : "?";
+        return `${url}${joiner}language=${encodeURIComponent(language)}`;
+      };
+
+      const setUserPill = (label) => {
+        const text = (label || "访客").trim();
+        const initial = text ? text[0].toUpperCase() : "?";
+        userPill.textContent = initial;
+        userPill.title = label || "访客";
+      };
 
       let cachedResults = [];
       let currentFilter = "all";
@@ -525,10 +607,10 @@
         const title = document.createElement("h3");
         title.className = "result-title";
         const titleText = item.title || item.name || "未命名";
-        if (item.media_type === "tv") {
+        if (item.media_type === "tv" || item.media_type === "movie") {
           const link = document.createElement("a");
           link.className = "result-link";
-          link.href = `/series/${item.id}`;
+          link.href = item.media_type === "tv" ? `/series/${item.id}` : `/movie/${item.id}`;
           link.textContent = titleText;
           title.appendChild(link);
         } else {
@@ -611,7 +693,7 @@
       const loadSearch = async (query) => {
         setStatus("搜索中...");
         try {
-          const response = await fetch(`/api/v1/tmdb/search?media_type=multi&query=${encodeURIComponent(query)}`);
+          const response = await fetch(withLanguage(`/api/v1/tmdb/search?media_type=multi&query=${encodeURIComponent(query)}`));
           const data = await response.json();
           if (!response.ok) {
             throw new Error(data.error || "搜索失败");
@@ -629,7 +711,7 @@
 
       const initSession = async () => {
         if (!token) {
-          userPill.textContent = "未登录";
+          setUserPill("未登录");
           setTimeout(() => {
             window.location.href = "/login";
           }, 800);
@@ -648,9 +730,9 @@
           }
 
           const data = await response.json();
-          userPill.textContent = data.email;
+          setUserPill(data.email);
         } catch (error) {
-          userPill.textContent = "会话过期";
+          setUserPill("会话过期");
           localStorage.removeItem("access_token");
           setTimeout(() => {
             window.location.href = "/login";
@@ -681,6 +763,14 @@
         loadSearch(query);
       });
 
+      languageSelect.addEventListener("change", () => {
+        localStorage.setItem("tmdb_language", languageSelect.value);
+        const query = searchInput.value.trim();
+        if (query) {
+          loadSearch(query);
+        }
+      });
+
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("access_token");
         window.location.href = "/login";
@@ -692,6 +782,7 @@
         loadSearch(initialQuery);
       }
 
+      applyLanguageSelection();
       initSession();
     </script>
   </body>
