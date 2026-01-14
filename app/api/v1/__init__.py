@@ -4,3 +4,4 @@ v1_bp = Blueprint("v1", __name__)
 
 from . import auth  # noqa
 from . import tmdb  # noqa
+from . import share_links  # noqa

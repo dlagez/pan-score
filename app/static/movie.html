@@ -386,6 +386,95 @@
         gap: 12px;
       }
 
+      .link-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .link-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .link-category {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .link-category.active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        border-color: transparent;
+      }
+
+      .link-add-btn {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 0.82rem;
+      }
+
+      .link-form {
+        display: none;
+        gap: 10px;
+        grid-template-columns: minmax(0, 1fr);
+        background: rgba(7, 14, 20, 0.6);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px;
+      }
+
+      .link-form.show {
+        display: grid;
+      }
+
+      .link-form input {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: rgba(6, 12, 18, 0.8);
+        color: var(--ink);
+        font-size: 0.86rem;
+        outline: none;
+      }
+
+      .link-form input::placeholder {
+        color: rgba(236, 242, 246, 0.5);
+      }
+
+      .link-form-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .link-form-actions button {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 0.82rem;
+      }
+
+      .link-form-actions button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        border-color: transparent;
+      }
+
       .link-list {
         display: grid;
         gap: 12px;
@@ -407,19 +496,9 @@
         gap: 6px;
       }
 
-      .link-title {
-        font-weight: 600;
-        font-size: 0.95rem;
-      }
-
-      .link-info {
+      .link-line {
         color: var(--muted);
-        font-size: 0.82rem;
-      }
-
-      .link-url {
-        color: var(--muted);
-        font-size: 0.82rem;
+        font-size: 0.84rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -432,6 +511,40 @@
         background: rgba(9, 16, 22, 0.6);
         color: var(--ink);
         text-decoration: none;
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+
+      .link-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .star-rating {
+        display: flex;
+        gap: 2px;
+      }
+
+      .star-btn {
+        border: 0;
+        background: transparent;
+        color: rgba(236, 242, 246, 0.35);
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 2px;
+      }
+
+      .star-btn.active {
+        color: #f7c948;
+      }
+
+      .star-btn.half {
+        color: rgba(247, 201, 72, 0.6);
+      }
+
+      .rating-summary {
+        color: var(--muted);
         font-size: 0.82rem;
         white-space: nowrap;
       }
@@ -605,7 +718,21 @@
             <div class="cast-row" id="cast-row"></div>
           </div>
           <div class="link-block">
-            <div class="section-title">分享链接</div>
+            <div class="link-header">
+              <div class="section-title">分享链接</div>
+              <button class="link-add-btn" type="button" id="link-add-btn">新增链接</button>
+            </div>
+            <form class="link-form" id="link-form">
+              <input type="url" id="link-url" placeholder="粘贴分享链接" required />
+              <input type="text" id="link-code" placeholder="提取码（可选）" />
+              <div class="link-form-actions">
+                <button class="primary" type="submit">提交</button>
+                <button type="button" id="link-cancel">取消</button>
+              </div>
+              <div class="status-line" id="link-message"></div>
+            </form>
+            <div class="link-categories" id="link-categories"></div>
+            <div class="status-line" id="link-alert"></div>
             <div class="link-list" id="link-list"></div>
             <div class="status-line" id="link-status">暂无分享链接</div>
           </div>
@@ -643,6 +770,14 @@
       const trailerBtn = document.getElementById("trailer-btn");
       const linkList = document.getElementById("link-list");
       const linkStatus = document.getElementById("link-status");
+      const linkAddBtn = document.getElementById("link-add-btn");
+      const linkForm = document.getElementById("link-form");
+      const linkUrlInput = document.getElementById("link-url");
+      const linkCodeInput = document.getElementById("link-code");
+      const linkMessage = document.getElementById("link-message");
+      const linkCancelBtn = document.getElementById("link-cancel");
+      const linkCategories = document.getElementById("link-categories");
+      const linkAlert = document.getElementById("link-alert");
 
       const factStatus = document.getElementById("fact-status");
       const factRuntime = document.getElementById("fact-runtime");
@@ -717,6 +852,29 @@
         statusLine.classList.toggle("error", isError);
       };
 
+      let currentTitlePayload = null;
+      let cachedShareLinks = [];
+      let currentProvider = "quark";
+      const userRatings = new Map();
+
+      const providerLabels = {
+        quark: "Quark",
+        baidu: "Baidu",
+        aliyun: "Aliyun",
+        onedrive: "OneDrive",
+        other: "其他",
+      };
+
+      const providerOrder = ["quark", "baidu", "aliyun", "onedrive", "other"];
+
+      const normalizeProvider = (provider) => {
+        const value = (provider || "").toLowerCase();
+        if (providerOrder.includes(value)) {
+          return value;
+        }
+        return "other";
+      };
+
       const renderCast = (cast) => {
         castRow.innerHTML = "";
         if (!cast.length) {
@@ -753,9 +911,84 @@
         });
       };
 
-      const renderShareLinks = (links) => {
+      const renderLinkCard = (link) => {
+        const card = document.createElement("div");
+        card.className = "link-card";
+
+        const meta = document.createElement("div");
+        meta.className = "link-meta";
+
+        const line = document.createElement("div");
+        line.className = "link-line";
+        line.textContent = link.url
+          ? link.access_code
+            ? `${link.url}  提取码：${link.access_code}`
+            : link.url
+          : "--";
+        meta.appendChild(line);
+
+        const actions = document.createElement("div");
+        actions.className = "link-actions";
+
+        const action = document.createElement("a");
+        action.className = "link-action";
+        action.textContent = "打开链接";
+        if (link.url) {
+          action.href = link.url;
+          action.target = "_blank";
+          action.rel = "noopener";
+        } else {
+          action.href = "#";
+          action.classList.add("disabled");
+          action.setAttribute("aria-disabled", "true");
+        }
+
+        const stars = document.createElement("div");
+        stars.className = "star-rating";
+        const userScore = userRatings.get(link.id);
+        for (let index = 1; index <= 5; index += 1) {
+          const star = document.createElement("button");
+          star.type = "button";
+          star.className = "star-btn";
+          star.textContent = "★";
+          if (userScore != null) {
+            if (userScore >= index) {
+              star.classList.add("active");
+            } else if (userScore >= index - 0.5) {
+              star.classList.add("half");
+            }
+          }
+          star.addEventListener("click", (event) => {
+            const rect = star.getBoundingClientRect();
+            const isHalf = event.clientX - rect.left < rect.width / 2;
+            const score = (index - 1) + (isHalf ? 0.5 : 1);
+            submitRating(link.id, score);
+          });
+          stars.appendChild(star);
+        }
+
+        const ratingSummary = document.createElement("div");
+        ratingSummary.className = "rating-summary";
+        const avgScore = link.avg_score != null ? Number(link.avg_score).toFixed(1) : "--";
+        const scoreCount = link.score_count != null ? link.score_count : 0;
+        const summary = `${avgScore} · ${scoreCount} 人`;
+        ratingSummary.textContent = userScore != null ? `我的 ${userScore} · ${summary}` : summary;
+
+        actions.appendChild(action);
+        actions.appendChild(stars);
+        actions.appendChild(ratingSummary);
+
+        card.appendChild(meta);
+        card.appendChild(actions);
+        return card;
+      };
+
+      const renderShareLinks = () => {
         linkList.innerHTML = "";
-        if (!links || links.length === 0) {
+        linkAlert.textContent = "";
+        linkAlert.classList.remove("error");
+
+        if (!cachedShareLinks || cachedShareLinks.length === 0) {
           linkStatus.textContent = "暂无分享链接";
           linkStatus.classList.remove("error");
           linkStatus.style.display = "block";
@@ -764,52 +997,195 @@
 
         linkStatus.style.display = "none";
         linkStatus.classList.remove("error");
-        links.forEach((link) => {
-          const card = document.createElement("div");
-          card.className = "link-card";
+        const filtered = currentProvider === "all"
+          ? cachedShareLinks
+          : cachedShareLinks.filter((link) => normalizeProvider(link.provider) === currentProvider);
 
-          const meta = document.createElement("div");
-          meta.className = "link-meta";
+        if (!filtered.length) {
+          linkStatus.textContent = "暂无分享链接";
+          linkStatus.style.display = "block";
+          return;
+        }
 
-          const title = document.createElement("div");
-          title.className = "link-title";
-          title.textContent = link.title || link.name || `${link.provider || "分享"}链接`;
-
-          const info = document.createElement("div");
-          info.className = "link-info";
-          const avgScore = link.avg_score != null ? Number(link.avg_score).toFixed(1) : "--";
-          const scoreCount = link.score_count != null ? link.score_count : 0;
-          const infoParts = [`评分 ${avgScore}`, `${scoreCount} 人`];
-          if (link.access_code) {
-            infoParts.push(`提取码 ${link.access_code}`);
-          }
-          info.textContent = infoParts.join(" · ");
-
-          const url = document.createElement("div");
-          url.className = "link-url";
-          url.textContent = link.url || "--";
-
-          meta.appendChild(title);
-          meta.appendChild(info);
-          meta.appendChild(url);
-
-          const action = document.createElement("a");
-          action.className = "link-action";
-          action.textContent = "打开链接";
-          if (link.url) {
-            action.href = link.url;
-            action.target = "_blank";
-            action.rel = "noopener";
-          } else {
-            action.href = "#";
-            action.classList.add("disabled");
-            action.setAttribute("aria-disabled", "true");
-          }
-
-          card.appendChild(meta);
-          card.appendChild(action);
-          linkList.appendChild(card);
+        filtered.forEach((link) => {
+          linkList.appendChild(renderLinkCard(link));
         });
+      };
+
+      const renderCategories = (groups, totalCount) => {
+        linkCategories.innerHTML = "";
+        const categories = [{ key: "all", label: "全部", count: totalCount }];
+        providerOrder.forEach((providerKey) => {
+          const links = groups[providerKey];
+          if (links && links.length) {
+            categories.push({
+              key: providerKey,
+              label: providerLabels[providerKey] || "其他",
+              count: links.length,
+            });
+          }
+        });
+
+        categories.forEach((item) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "link-category";
+          if (item.key === currentProvider) {
+            btn.classList.add("active");
+          }
+          btn.textContent = `${item.label} (${item.count})`;
+          btn.addEventListener("click", () => {
+            currentProvider = item.key;
+            renderShareLinks();
+            renderCategories(groups, totalCount);
+          });
+          linkCategories.appendChild(btn);
+        });
+      };
+
+      const setShareLinks = (links) => {
+        cachedShareLinks = Array.isArray(links) ? links : [];
+        const groups = {};
+        cachedShareLinks.forEach((link) => {
+          const key = normalizeProvider(link.provider);
+          if (!groups[key]) {
+            groups[key] = [];
+          }
+          groups[key].push(link);
+        });
+        if (currentProvider !== "all" && !groups[currentProvider]) {
+          currentProvider = "all";
+        }
+        renderCategories(groups, cachedShareLinks.length);
+        renderShareLinks();
+      };
+
+      const loadShareLinks = async () => {
+        if (!currentTitlePayload) {
+          return;
+        }
+        const query = new URLSearchParams({
+          tmdb_id: String(currentTitlePayload.tmdb_id),
+          media_type: currentTitlePayload.media_type,
+        });
+        try {
+          const response = await fetch(`/api/v1/share-links?${query}`);
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "加载失败");
+          }
+          setShareLinks(data.results || []);
+          await loadUserRatings();
+        } catch (error) {
+          linkStatus.textContent = `分享链接加载失败：${error.message}`;
+          linkStatus.classList.add("error");
+          linkStatus.style.display = "block";
+        }
+      };
+
+      const loadUserRatings = async () => {
+        if (!token || !currentTitlePayload) {
+          userRatings.clear();
+          renderShareLinks();
+          return;
+        }
+        const query = new URLSearchParams({
+          tmdb_id: String(currentTitlePayload.tmdb_id),
+          media_type: currentTitlePayload.media_type,
+        });
+        try {
+          const response = await fetch(`/api/v1/share-links/ratings?${query}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "加载失败");
+          }
+          userRatings.clear();
+          (data.ratings || []).forEach((item) => {
+            userRatings.set(item.link_id, item.score);
+          });
+          renderShareLinks();
+        } catch (error) {
+          userRatings.clear();
+          renderShareLinks();
+        }
+      };
+
+      const submitRating = async (linkId, score) => {
+        if (!token) {
+          linkAlert.textContent = "请先登录后评分。";
+          linkAlert.classList.add("error");
+          return;
+        }
+        linkAlert.textContent = "提交评分中...";
+        linkAlert.classList.remove("error");
+        try {
+          const response = await fetch(`/api/v1/share-links/${linkId}/rating`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ score }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "提交失败");
+          }
+          userRatings.set(linkId, score);
+          if (data.link) {
+            cachedShareLinks = cachedShareLinks.map((item) =>
+              item.id === data.link.id ? data.link : item
+            );
+          }
+          linkAlert.textContent = "评分成功";
+          renderShareLinks();
+        } catch (error) {
+          linkAlert.textContent = `评分失败：${error.message}`;
+          linkAlert.classList.add("error");
+        }
+      };
+
+      const submitShareLink = async () => {
+        if (!currentTitlePayload) {
+          return;
+        }
+        const url = linkUrlInput.value.trim();
+        if (!url) {
+          linkMessage.textContent = "请填写分享链接。";
+          linkMessage.classList.add("error");
+          return;
+        }
+        linkMessage.textContent = "提交中...";
+        linkMessage.classList.remove("error");
+        try {
+          const response = await fetch("/api/v1/share-links", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...currentTitlePayload,
+              url,
+              access_code: linkCodeInput.value.trim(),
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "提交失败");
+          }
+          linkMessage.textContent = "提交成功";
+          linkUrlInput.value = "";
+          linkCodeInput.value = "";
+          linkForm.classList.remove("show");
+          await loadShareLinks();
+        } catch (error) {
+          linkMessage.textContent = `提交失败：${error.message}`;
+          linkMessage.classList.add("error");
+        }
       };
 
       const formatCurrency = (value) => {
@@ -877,7 +1253,17 @@
           ? detail.production_companies.map((item) => item.name).join("、")
           : "--";
 
-        renderShareLinks(detail.share_links || []);
+        currentTitlePayload = {
+          tmdb_id: detail.id,
+          media_type: "movie",
+          name: detail.title || detail.name,
+          original_name: detail.original_title || detail.original_name,
+          release_date: detail.release_date,
+          poster_path: detail.poster_path,
+          status: detail.status,
+        };
+
+        loadShareLinks();
       };
 
       const initSession = async () => {
@@ -954,6 +1340,23 @@
           }
         });
       }
+
+      linkAddBtn.addEventListener("click", () => {
+        linkForm.classList.toggle("show");
+        linkMessage.textContent = "";
+        linkMessage.classList.remove("error");
+      });
+
+      linkCancelBtn.addEventListener("click", () => {
+        linkForm.classList.remove("show");
+        linkMessage.textContent = "";
+        linkMessage.classList.remove("error");
+      });
+
+      linkForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitShareLink();
+      });
 
       logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("access_token");
