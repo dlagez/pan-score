@@ -1,12 +1,12 @@
 from flask import Flask, send_from_directory
 from dotenv import load_dotenv
 
-from .config import Config
 from .extensions import db, migrate, jwt
 from .api.v1 import v1_bp
 
 def create_app():
     load_dotenv()
+    from .config import Config
     app = Flask(__name__)
     app.config.from_object(Config)
 

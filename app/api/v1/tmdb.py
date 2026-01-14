@@ -49,8 +49,14 @@ def _tmdb_fetch(path: str, params: dict) -> tuple[dict, int]:
     else:
         params["api_key"] = api_key
 
+    safe_params = dict(params)
+    if "api_key" in safe_params:
+        safe_params["api_key"] = "***"
     query = urlparse.urlencode(params)
+    safe_query = urlparse.urlencode(safe_params)
     url = f"{base_url}{path}?{query}"
+    safe_url = f"{base_url}{path}?{safe_query}"
+    current_app.logger.info("TMDB request: %s", safe_url)
     req = urlrequest.Request(url, headers=headers)
 
     try:
