@@ -2,14 +2,15 @@ from datetime import datetime
 from decimal import Decimal
 from urllib import parse as urlparse
 
-from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import current_app, request
+from flask_jwt_extended import get_jwt_identity, jwt_required, verify_jwt_in_request
 from sqlalchemy.exc import IntegrityError
 
 from ...extensions import db
 from ...models.link_rating import LinkRating
 from ...models.share_link import ShareLink
 from ...models.title import Title
+from ...sdk.pansou import PanSou
 from ...services.rating_aggregation import refresh_share_link_scores
 from . import v1_bp
 
@@ -38,11 +39,75 @@ def _resolve_provider(url: str) -> str:
     return host
 
 
+def _resolve_source(value: str | None) -> str:
+    source = (value or "").strip().lower()
+    if source in {"manual", "pansou", "cloudsaver"}:
+        return source
+    return "manual"
+
+
+def _parse_limit(value, default, max_value=50):
+    try:
+        limit = int(value)
+    except (TypeError, ValueError):
+        return default
+    if limit <= 0:
+        return default
+    return min(max_value, limit)
+
+
+def _get_or_create_title(data: dict, tmdb_id: int, media_type: str) -> Title:
+    title = Title.query.filter_by(tmdb_id=tmdb_id, media_type=media_type).first()
+    if not title:
+        title = Title(
+            tmdb_id=tmdb_id,
+            media_type=media_type,
+            name=data.get("name") or data.get("title") or "Unknown title",
+            original_name=data.get("original_name") or data.get("original_title"),
+            release_date=_parse_date(data.get("release_date")),
+            first_air_date=_parse_date(data.get("first_air_date")),
+            poster_path=data.get("poster_path"),
+            status=data.get("status"),
+        )
+        db.session.add(title)
+    else:
+        if not title.name and (data.get("name") or data.get("title")):
+            title.name = data.get("name") or data.get("title")
+        if not title.original_name and (data.get("original_name") or data.get("original_title")):
+            title.original_name = data.get("original_name") or data.get("original_title")
+        if not title.release_date and data.get("release_date"):
+            title.release_date = _parse_date(data.get("release_date"))
+        if not title.first_air_date and data.get("first_air_date"):
+            title.first_air_date = _parse_date(data.get("first_air_date"))
+        if not title.poster_path and data.get("poster_path"):
+            title.poster_path = data.get("poster_path")
+        if not title.status and data.get("status"):
+            title.status = data.get("status")
+
+    if title.id is None:
+        db.session.flush()
+    return title
+
+
+def _optional_user_id() -> int | None:
+    verify_jwt_in_request(optional=True)
+    identity = get_jwt_identity()
+    if identity is None:
+        return None
+    try:
+        return int(identity)
+    except (TypeError, ValueError):
+        return None
+
+
 def _link_payload(link: ShareLink) -> dict:
     return {
         "id": link.id,
         "title_id": link.title_id,
         "provider": link.provider,
+        "source": link.source,
+        "name": link.name,
+        "created_by": link.created_by,
         "url": link.url,
         "access_code": link.access_code,
         "avg_score": float(link.avg_score or 0),
@@ -114,44 +179,24 @@ def share_links_create():
     if media_type not in {"movie", "tv"}:
         return {"error": "INVALID_MEDIA_TYPE"}, 400
 
-    title = Title.query.filter_by(tmdb_id=tmdb_id, media_type=media_type).first()
-    if not title:
-        title = Title(
-            tmdb_id=tmdb_id,
-            media_type=media_type,
-            name=data.get("name") or data.get("title") or "未命名",
-            original_name=data.get("original_name") or data.get("original_title"),
-            release_date=_parse_date(data.get("release_date")),
-            first_air_date=_parse_date(data.get("first_air_date")),
-            poster_path=data.get("poster_path"),
-            status=data.get("status"),
-        )
-        db.session.add(title)
-    else:
-        if not title.name and (data.get("name") or data.get("title")):
-            title.name = data.get("name") or data.get("title")
-        if not title.original_name and (data.get("original_name") or data.get("original_title")):
-            title.original_name = data.get("original_name") or data.get("original_title")
-        if not title.release_date and data.get("release_date"):
-            title.release_date = _parse_date(data.get("release_date"))
-        if not title.first_air_date and data.get("first_air_date"):
-            title.first_air_date = _parse_date(data.get("first_air_date"))
-        if not title.poster_path and data.get("poster_path"):
-            title.poster_path = data.get("poster_path")
-        if not title.status and data.get("status"):
-            title.status = data.get("status")
-
-    if title.id is None:
-        db.session.flush()
+    user_id = _optional_user_id()
+    title = _get_or_create_title(data, tmdb_id, media_type)
 
     provider = (data.get("provider") or "").strip() or _resolve_provider(url)
+    source = _resolve_source(data.get("source"))
+    name = (data.get("name") or "").strip() or None
+    if name:
+        name = name[:255]
     access_code = (data.get("access_code") or "").strip() or None
 
     link = ShareLink(
         title=title,
         provider=provider,
+        source=source,
+        name=name,
         url=url,
         access_code=access_code,
+        created_by=user_id,
     )
     db.session.add(link)
     try:
@@ -161,6 +206,55 @@ def share_links_create():
         return {"error": "LINK_EXISTS"}, 409
 
     return {"link": _link_payload(link)}, 201
+
+
+@v1_bp.post("/share-links/pansou")
+def share_links_pansou_search():
+    data = request.get_json(silent=True) or {}
+    server = current_app.config.get("PANSOU_SERVER")
+    if not server:
+        return {"error": "PANSOU_NOT_CONFIGURED"}, 400
+
+    keyword = (
+        data.get("keyword")
+        or data.get("name")
+        or data.get("title")
+        or data.get("original_name")
+        or data.get("original_title")
+        or ""
+    ).strip()
+    if not keyword:
+        return {"error": "MISSING_KEYWORD"}, 400
+
+    default_limit = current_app.config.get("PANSOU_SAVE_LIMIT", 10)
+    limit = _parse_limit(data.get("limit"), default_limit)
+
+    results = PanSou(server).search(keyword)
+    items = []
+    for item in results:
+        url = (item.get("shareurl") or "").strip()
+        if not url:
+            continue
+        if any(existing.get("url") == url for existing in items):
+            continue
+        name = (item.get("taskname") or "").strip()
+        if name:
+            name = name[:255]
+        items.append(
+            {
+                "name": name or None,
+                "url": url,
+                "provider": _resolve_provider(url),
+                "source": "pansou",
+                "content": (item.get("content") or "").strip() or None,
+                "datetime": item.get("datetime"),
+                "channel": item.get("channel"),
+            }
+        )
+        if len(items) >= limit:
+            break
+
+    return {"results": items, "total": len(items)}, 200
 
 
 @v1_bp.post("/share-links/<int:link_id>/rating")

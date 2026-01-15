@@ -2,7 +2,10 @@ import re
 
 import requests
 
-from sdk.common import iso_to_cst
+try:
+    from .common import iso_to_cst
+except ImportError:
+    from sdk.common import iso_to_cst
 
 
 class PanSou:

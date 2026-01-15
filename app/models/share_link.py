@@ -12,6 +12,8 @@ class ShareLink(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title_id = db.Column(db.Integer, db.ForeignKey("titles.id"), nullable=False, index=True)
     provider = db.Column(db.String(50), nullable=False)
+    source = db.Column(db.String(32), default="manual", nullable=False)
+    name = db.Column(db.String(255))
     url = db.Column(db.String(1024), nullable=False)
     access_code = db.Column(db.String(64))
     is_active = db.Column(db.Boolean, default=True, nullable=False)

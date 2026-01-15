@@ -12,3 +12,8 @@ class Config:
     TMDB_LANGUAGE = os.getenv("TMDB_LANGUAGE", "zh-CN")
     TMDB_BASE_URL = os.getenv("TMDB_BASE_URL", "https://api.themoviedb.org/3")
     TMDB_CACHE_ENABLED = os.getenv("TMDB_CACHE_ENABLED", "true").lower() in ("1", "true", "yes")
+    PANSOU_SERVER = os.getenv("PANSOU_SERVER")
+    try:
+        PANSOU_SAVE_LIMIT = int(os.getenv("PANSOU_SAVE_LIMIT", "10"))
+    except ValueError:
+        PANSOU_SAVE_LIMIT = 10

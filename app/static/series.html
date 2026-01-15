@@ -402,6 +402,12 @@
         gap: 12px;
       }
 
+      .link-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
       .link-categories {
         display: flex;
         flex-wrap: wrap;
@@ -432,6 +438,11 @@
         color: var(--ink);
         cursor: pointer;
         font-size: 0.82rem;
+      }
+
+      .link-add-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
       }
 
       .link-form {
@@ -505,12 +516,150 @@
         gap: 6px;
       }
 
-      .link-line {
+      .link-meta-link {
+        display: block;
+        text-decoration: none;
         color: var(--muted);
+      }
+
+      .link-meta-link:hover {
+        color: var(--ink);
+      }
+
+      .link-meta-link.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+      }
+
+      .link-line {
+        color: inherit;
         font-size: 0.84rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      .link-line-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .link-line-wrap .link-line {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .link-badge {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.72rem;
+        letter-spacing: 0.02em;
+        color: var(--ink);
+        background: rgba(17, 181, 164, 0.12);
+        white-space: nowrap;
+      }
+
+      .pansou-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 10, 15, 0.78);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 40;
+      }
+
+      .pansou-modal.show {
+        display: flex;
+      }
+
+      .pansou-card {
+        width: min(860px, 92vw);
+        background: var(--panel-2);
+        border: 1px solid var(--stroke);
+        border-radius: 20px;
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      .pansou-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .pansou-list {
+        display: grid;
+        gap: 10px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      .pansou-item {
+        background: rgba(7, 14, 20, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .pansou-info {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .pansou-link {
+        color: inherit;
+        text-decoration: none;
+        display: grid;
+        gap: 4px;
+      }
+
+      .pansou-link:hover .pansou-title {
+        color: var(--ink);
+      }
+
+      .pansou-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .pansou-sub {
+        color: var(--muted);
+        font-size: 0.8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .pansou-actions button {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(9, 16, 22, 0.6);
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 0.82rem;
+      }
+
+      .pansou-actions button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #061017;
+        border-color: transparent;
       }
 
       .link-action {
@@ -822,10 +971,14 @@
           <div class="link-block">
             <div class="link-header">
               <div class="section-title">分享链接</div>
-              <button class="link-add-btn" type="button" id="link-add-btn">新增链接</button>
+              <div class="link-header-actions">
+                <button class="link-add-btn" type="button" id="link-pansou-btn">pansou</button>
+                <button class="link-add-btn" type="button" id="link-add-btn">新增链接</button>
+              </div>
             </div>
             <form class="link-form" id="link-form">
               <input type="url" id="link-url" placeholder="粘贴分享链接" required />
+              <input type="text" id="link-name" placeholder="链接名（可选）" />
               <input type="text" id="link-code" placeholder="提取码（可选）" />
               <div class="link-form-actions">
                 <button class="primary" type="submit">提交</button>
@@ -853,6 +1006,17 @@
         </aside>
       </section>
     </main>
+
+    <div class="pansou-modal" id="pansou-modal" aria-hidden="true">
+      <div class="pansou-card">
+        <div class="pansou-header">
+          <div class="section-title">Pansou 搜索结果</div>
+          <button class="ghost-btn" type="button" id="pansou-close">关闭</button>
+        </div>
+        <div class="status-line" id="pansou-status"></div>
+        <div class="pansou-list" id="pansou-list"></div>
+      </div>
+    </div>
 
     <script>
       const heroBackdrop = document.getElementById("hero-backdrop");
@@ -882,13 +1046,19 @@
       const linkList = document.getElementById("link-list");
       const linkStatus = document.getElementById("link-status");
       const linkAddBtn = document.getElementById("link-add-btn");
+      const linkPansouBtn = document.getElementById("link-pansou-btn");
       const linkForm = document.getElementById("link-form");
       const linkUrlInput = document.getElementById("link-url");
+      const linkNameInput = document.getElementById("link-name");
       const linkCodeInput = document.getElementById("link-code");
       const linkMessage = document.getElementById("link-message");
       const linkCancelBtn = document.getElementById("link-cancel");
       const linkCategories = document.getElementById("link-categories");
       const linkAlert = document.getElementById("link-alert");
+      const pansouModal = document.getElementById("pansou-modal");
+      const pansouList = document.getElementById("pansou-list");
+      const pansouStatus = document.getElementById("pansou-status");
+      const pansouCloseBtn = document.getElementById("pansou-close");
 
       const factStatus = document.getElementById("fact-status");
       const factSeasons = document.getElementById("fact-seasons");
@@ -1124,33 +1294,50 @@
         const card = document.createElement("div");
         card.className = "link-card";
 
-        const meta = document.createElement("div");
-        meta.className = "link-meta";
+        const meta = document.createElement(link.url ? "a" : "div");
+        meta.className = "link-meta link-meta-link";
+        if (link.url) {
+          meta.href = link.url;
+          meta.target = "_blank";
+          meta.rel = "noopener";
+        } else {
+          meta.classList.add("disabled");
+        }
+
+        const lineWrap = document.createElement("div");
+        lineWrap.className = "link-line-wrap";
 
         const line = document.createElement("div");
         line.className = "link-line";
-        line.textContent = link.url
-          ? link.access_code
-            ? `${link.url}  提取码：${link.access_code}`
-            : link.url
-          : "--";
-        meta.appendChild(line);
+        const parts = [];
+        if (link.name) {
+          parts.push(link.name);
+        }
+        if (link.url) {
+          parts.push(link.url);
+        }
+        let lineText = parts.length ? parts.join(" · ") : "--";
+        if (link.access_code) {
+          lineText = `${lineText}  提取码：${link.access_code}`;
+        }
+        line.textContent = lineText;
+        lineWrap.appendChild(line);
+
+        const sourceLabels = {
+          manual: "手动",
+          pansou: "Pansou",
+          cloudsaver: "CloudSaver",
+        };
+        const sourceLabel = sourceLabels[link.source] || "手动";
+        const badge = document.createElement("span");
+        badge.className = "link-badge";
+        badge.textContent = sourceLabel;
+        lineWrap.appendChild(badge);
+
+        meta.appendChild(lineWrap);
 
         const actions = document.createElement("div");
         actions.className = "link-actions";
-
-        const action = document.createElement("a");
-        action.className = "link-action";
-        action.textContent = "打开链接";
-        if (link.url) {
-          action.href = link.url;
-          action.target = "_blank";
-          action.rel = "noopener";
-        } else {
-          action.href = "#";
-          action.classList.add("disabled");
-          action.setAttribute("aria-disabled", "true");
-        }
 
         const stars = document.createElement("div");
         stars.className = "star-rating";
@@ -1183,7 +1370,6 @@
         const summary = `${avgScore} · ${scoreCount} 人`;
         ratingSummary.textContent = userScore != null ? `我的 ${userScore} · ${summary}` : summary;
 
-        actions.appendChild(action);
         actions.appendChild(stars);
         actions.appendChild(ratingSummary);
 
@@ -1371,14 +1557,19 @@
         linkMessage.textContent = "提交中...";
         linkMessage.classList.remove("error");
         try {
+          const headers = {
+            "Content-Type": "application/json",
+          };
+          if (token) {
+            headers.Authorization = `Bearer ${token}`;
+          }
           const response = await fetch("/api/v1/share-links", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify({
               ...currentTitlePayload,
               url,
+              name: linkNameInput.value.trim(),
               access_code: linkCodeInput.value.trim(),
             }),
           });
@@ -1388,12 +1579,150 @@
           }
           linkMessage.textContent = "提交成功";
           linkUrlInput.value = "";
+          linkNameInput.value = "";
           linkCodeInput.value = "";
           linkForm.classList.remove("show");
           await loadShareLinks();
         } catch (error) {
           linkMessage.textContent = `提交失败：${error.message}`;
           linkMessage.classList.add("error");
+        }
+      };
+
+      const closePansouModal = () => {
+        pansouModal.classList.remove("show");
+        pansouModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      };
+
+      const openPansouModal = () => {
+        pansouModal.classList.add("show");
+        pansouModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      };
+
+      const submitPansouLink = async (item, button) => {
+        if (!currentTitlePayload) {
+          return;
+        }
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        if (button) {
+          button.disabled = true;
+          button.textContent = "添加中";
+        }
+        try {
+          const response = await fetch("/api/v1/share-links", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              ...currentTitlePayload,
+              url: item.url,
+              name: item.name || "",
+              source: "pansou",
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            if (data.error === "LINK_EXISTS") {
+              throw new Error("已有人添加过了");
+            }
+            throw new Error(data.error || "添加失败");
+          }
+          if (button) {
+            button.textContent = "已添加";
+          }
+          await loadShareLinks();
+        } catch (error) {
+          if (button) {
+            button.disabled = false;
+            button.textContent = "添加";
+          }
+          pansouStatus.textContent = `添加失败：${error.message}`;
+          pansouStatus.classList.add("error");
+        }
+      };
+
+      const renderPansouResults = (items) => {
+        pansouList.innerHTML = "";
+        if (!items.length) {
+          pansouStatus.textContent = "未找到相关结果。";
+          pansouStatus.classList.remove("error");
+          return;
+        }
+        pansouStatus.textContent = `找到 ${items.length} 条结果`;
+        pansouStatus.classList.remove("error");
+        items.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "pansou-item";
+
+          const info = document.createElement("div");
+          info.className = "pansou-info";
+
+          const link = document.createElement("a");
+          link.className = "pansou-link";
+          link.href = item.url || "#";
+          link.target = "_blank";
+          link.rel = "noopener";
+
+          const title = document.createElement("div");
+          title.className = "pansou-title";
+          title.textContent = item.name || item.url || "未知链接";
+
+          const sub = document.createElement("div");
+          sub.className = "pansou-sub";
+          sub.textContent = item.content || item.url || "";
+
+          link.appendChild(title);
+          link.appendChild(sub);
+          info.appendChild(link);
+
+          const actions = document.createElement("div");
+          actions.className = "pansou-actions";
+          const addBtn = document.createElement("button");
+          addBtn.type = "button";
+          addBtn.className = "primary";
+          addBtn.textContent = "添加";
+          addBtn.addEventListener("click", () => {
+            submitPansouLink(item, addBtn);
+          });
+          actions.appendChild(addBtn);
+
+          row.appendChild(info);
+          row.appendChild(actions);
+          pansouList.appendChild(row);
+        });
+      };
+
+      const loadPansouResults = async () => {
+        if (!currentTitlePayload) {
+          return;
+        }
+        pansouStatus.textContent = "Pansou 查询中...";
+        pansouStatus.classList.remove("error");
+        pansouList.innerHTML = "";
+        try {
+          const response = await fetch("/api/v1/share-links/pansou", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              keyword: currentTitlePayload.name || currentTitlePayload.original_name || "",
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "查询失败");
+          }
+          renderPansouResults(data.results || []);
+        } catch (error) {
+          pansouStatus.textContent = `查询失败：${error.message}`;
+          pansouStatus.classList.add("error");
         }
       };
 
@@ -1573,11 +1902,33 @@
         linkMessage.classList.remove("error");
       });
 
+      if (linkPansouBtn) {
+        linkPansouBtn.addEventListener("click", () => {
+          openPansouModal();
+          loadPansouResults();
+        });
+      }
+
       linkCancelBtn.addEventListener("click", () => {
         linkForm.classList.remove("show");
         linkMessage.textContent = "";
         linkMessage.classList.remove("error");
+        linkNameInput.value = "";
       });
+
+      if (pansouCloseBtn) {
+        pansouCloseBtn.addEventListener("click", () => {
+          closePansouModal();
+        });
+      }
+
+      if (pansouModal) {
+        pansouModal.addEventListener("click", (event) => {
+          if (event.target === pansouModal) {
+            closePansouModal();
+          }
+        });
+      }
 
       linkForm.addEventListener("submit", (event) => {
         event.preventDefault();
